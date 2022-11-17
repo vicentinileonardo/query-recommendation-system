@@ -1,1 +1,1 @@
-# query-recommendation-system
+# Query Recommendation System
