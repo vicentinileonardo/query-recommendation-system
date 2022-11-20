@@ -12,7 +12,7 @@ def generate_user_set():
             writer.writerow({'user_id': uuid.uuid4()})
     csvfile.close()
 
-def generate_relationl_table():
+def generate_relational_table():
     with open('../data/relational_table.csv', 'w') as csvfile:
         fieldnames = ['name', 'genre', 'length', 'year', 'country', 'rating']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -29,4 +29,4 @@ def generate_relationl_table():
 
 if __name__ == '__main__':
     generate_user_set()
-    generate_relationl_table()
+    generate_relational_table()
