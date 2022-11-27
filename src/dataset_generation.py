@@ -180,8 +180,94 @@ def generate_queries():
 
     csvfile.close()
 
+#function that generates an utility matrix, it needs to change the weights given to the attributes and also to take into account the "rating" field of the movies
+def generate_utility_matrix():
+    dir = os.path.dirname(__file__)
+    filename_utility_matrix = os.path.join(dir, '../data/utility_matrix.csv')
+    filename_queries = os.path.join(dir, '../data/queries.csv')
+    filename_users = os.path.join(dir, '../data/complete_user_set.csv')
+
+    with open(filename_utility_matrix, 'w') as csvfile_utility_matrix, open(filename_users, 'r') as csvfile_users:
+        fieldnames = ['user_id']
+
+        for i in range(138): #number of queries
+            fieldnames.append("q"+str(i))
+
+        writer = csv.DictWriter(csvfile_utility_matrix, fieldnames=fieldnames)
+        writer.writeheader()
+
+        line_count_users = 0
+        line_count_queries = 0
+        csv_reader_users = csv.reader(csvfile_users, delimiter=',')
+
+        for row_users in csv_reader_users:
+            utility_matrix_row={}
+
+            if line_count_users != 0:
+                utility_matrix_row["user_id"]=row_users[0]
+                with open(filename_queries, 'r') as csvfile_queries:
+                    csv_reader_queries = csv.reader(csvfile_queries, delimiter=',')
+
+                    for row_queries in csv_reader_queries: #given an user, foreach query compute a preference score
+                        if line_count_queries != 0:
+
+                            if get_random_int(1, 3) == 1: #utility matrix is empty for 2/3 of the positions
+                                score=0
+                                considered_params=0
+
+                                if row_queries[1] != "":
+                                    considered_params+=1
+                                    if row_users[1] == row_queries[1]: #if is the genre that the user loves the most
+                                        score+=40
+                                    if row_users[2] == row_queries[1]: #if is a genre that the user likes
+                                        score+=20
+                                    if row_users[3] != row_queries[1]: #if is not genre that the user hates, otherwise the final score for the genre will be 0 for this field
+                                        score+=60      
+
+                                if row_queries[2] != "":
+                                    considered_params+=1
+                                    score+= 100-(abs(int(row_queries[2])-int(row_users[4]))/1.35) #preference about the lenght, less is the difference and better it is. 135 are the minutes between the longest and the shortest movie
+
+                                if row_queries[3] != "":
+                                    considered_params+=1
+                                    score+= 100-(abs(int(row_queries[3])-int(row_users[5]))/1.2) #preference about the lenght, less is the difference and better it is. 120 are the year between the oldest and the newest movie
+
+                                if row_queries[4] != "":
+                                    considered_params+=1
+                                    if row_users[6] == row_queries[4]: #if is the nationality that the user loves the most
+                                        score+=40
+                                    if row_users[7] == row_queries[4]: #if is a nationality that the user likes
+                                        score+=20
+                                    if row_users[8] != row_queries[4]: #if is not the nationality that the user hates, otherwise the final score for the genre will be 0 for this field
+                                        score+=60  
+
+                                score=score/considered_params #to obtain a rating between 0 and 100
+                                score+=int(row_users[9]) #score translated base on individual avarage of score in comparison to the others users (to say: is the user very severe or likes almost everything?)
+
+                                score+=random.randint(-15, 15) #score translated in order to give a less predictable/ more noisy result
+                                
+                                score=round(score,0)/100 #to obtain a score between 0 and 1
+                                if score<=0:
+                                    score=0
+
+                                if score>=1:
+                                    score=1
+
+                                utility_matrix_row[row_queries[0]]=score
+
+                        line_count_queries+=1
+
+                    writer.writerow(utility_matrix_row)
+                    csvfile_queries.close() #to read from the beginning the file in the next iteration
+                    line_count_queries=0
+            line_count_users+=1
+
+    csvfile_users.close()
+    csvfile_utility_matrix.close()
+
 if __name__ == '__main__':
     generate_user_set()
     generate_relational_table()
     generate_queries()
+    generate_utility_matrix()
 
