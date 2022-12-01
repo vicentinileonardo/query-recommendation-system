@@ -187,6 +187,8 @@ def generate_utility_matrix():
     filename_utility_matrix_complete = os.path.join(dir, '../data/utility_matrix_complete.csv')
     filename_queries = os.path.join(dir, '../data/queries.csv')
     filename_users = os.path.join(dir, '../data/complete_user_set.csv')
+    filename_movies = os.path.join(dir, '../data/relational_table.csv')
+
 
     with open(filename_utility_matrix, 'w') as csvfile_utility_matrix, open(filename_utility_matrix_complete, 'w') as csvfile_utility_matrix_complete, open(filename_users, 'r') as csvfile_users:
         fieldnames = ['user_id']
@@ -224,12 +226,13 @@ def generate_utility_matrix():
 
                     for row_queries in csv_reader_queries: #given an user, foreach query compute a preference score
                         if line_count_queries != 0:
-
+                            used_params={}
                             score=0
                             considered_params=0
 
                             if row_queries[1] != "":
                                 considered_params+=1
+                                used_params["row_movies[1]"] = row_queries[1]
                                 if row_users[1] == row_queries[1]: #if the query has the genre that the user loves the most
                                     score+=40
                                 if row_users[2] == row_queries[1]: #if the query has a genre that the user likes
@@ -239,20 +242,46 @@ def generate_utility_matrix():
 
                             if row_queries[2] != "":
                                 considered_params+=1
+                                used_params["row_movies[2]"] = row_queries[2]
                                 score+= 100-(abs(int(row_queries[2])-int(row_users[4]))/1.35) #preference about the length, less is the difference and better it is. 135 are the minutes between the longest and the shortest movie
 
                             if row_queries[3] != "":
                                 considered_params+=1
+                                used_params["row_movies[3]"] = row_queries[3]
                                 score+= 100-(abs(int(row_queries[3])-int(row_users[5]))/1.2) #preference about the length, less is the difference and better it is. 120 are the year between the oldest and the newest movie
 
                             if row_queries[4] != "":
                                 considered_params+=1
+                                used_params["row_movies[4]"] = row_queries[4]
                                 if row_users[6] == row_queries[4]: #if the query has the nationality that the user loves the most
                                     score+=40
                                 if row_users[7] == row_queries[4]: #if the query has a nationality that the user likes
                                     score+=20
                                 if row_users[8] != row_queries[4]: #if the query has not the nationality that the user hates, otherwise the final score for the genre will be 0 for this field
                                     score+=60  
+
+                            ##FROM HERE IS TAKEN INTO ACCOUNT THE "RATING" FIELD OF THE SINGLE MOVIES
+                            #rating_sum=0
+                            #movies_considered=0
+                            #with open(filename_movies, 'r') as csvfile_movies:
+                                #query=""
+                                #counter_params_inserted=0
+                                #for key in used_params:
+                                    #if counter_params_inserted != 0:
+                                        #query+=" and "
+                                    #query += key + "==" + used_params[key]
+                                    #counter_params_inserted+=1
+                                #print(query)
+
+                                #for row_movies in csvfile_movies:
+                                    #if eval(query):
+                                        #rating_sum+=(row_movies[5]-3)*5
+                                        #movies_considered+=1
+
+                                #csvfile_movies.close()
+
+                            #rating_avarage=rating_sum/movies_considered
+                            #score+=rating_avarage
 
                             score=score/considered_params #to obtain a rating between 0 and 100
                             score+=int(row_users[9]) #score translated base on individual avarage translation of scores in comparison to the others users (to say: is the user very severe or likes almost everything?)
