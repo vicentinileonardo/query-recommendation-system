@@ -1,5 +1,7 @@
 import string
 import random
+import os
+import shutil
 
 def get_random_string(n):
     return ''.join(random.choice(string.ascii_lowercase) for i in range(n))
@@ -30,3 +32,9 @@ def get_random_country(n):
                           'ROU', 'RUS', 'RWA', 'BL', 'SHN', 'KNA', 'LCA', 'MAF', 'SPM', 'VCT', 'WSM', 'SMR', 'STP', 'SAU', 'SEN', 'SRB', 'SYC', 'SLE', 'SGP', 'SVK', 'SVN', 'SLB', 'SOM', 'ZAF', 'SGS', 'SSD', 'ESP', 'LKA', 'SDN', 'SUR', 'SJM', 'SWZ', 'SWE', 'CHE', 'SYR', 'TWN', 'TJK', 'TZA', 'THA', 'TLS', 'TGO', 'TKL', 'TON', 'TTO', 'TUN', 'TUR', 'TKM', 'TCA', 'TUV', 'UGA', 'UKR', 'ARE', 'GBR', 'USA', 'UMI', 'URY', 'UZB', 'VUT', 'VEN', 'VNM',
                           'VGB', 'VIR', 'WLF', 'ESH', 'YEM', 'ZMB', 'ZWE'],n)
 
+def deleteDataContent():
+    dir = os.path.dirname(__file__)
+    files = os.path.join(dir, '../data/')    
+    shutil.rmtree(files)
+
+    os.mkdir(files)
