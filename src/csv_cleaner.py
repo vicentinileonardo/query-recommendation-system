@@ -22,9 +22,8 @@ with open(file_name, 'r') as f_read:
         writer.writerow(columns_to_be_kept)
 
         for row in reader:
-            # is the score column is to be kept, then we need to convert the score to a 0-5 scale from a 0-10 scale and round to integer
+            # we need to convert the score to a 0-5 scale from a 0-10 scale and round to integer
             if score_flag:
-                # check if the score is not ''
                 if row[indices[-1]] != '':
                     row[indices[-1]] = str(round(float(row[indices[-1]])/2))
                 else:
