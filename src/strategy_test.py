@@ -40,7 +40,8 @@ test_utility_matrix = utility_matrix.copy()
 for query in range(utility_matrix.shape[0]):
     if utility_matrix.iloc[query, :].mean() == 0:
         for user in range(utility_matrix.shape[1]):
-            utility_matrix.iloc[query, user] = round((random.randint(1, 100) * utility_matrix.iloc[:, user].mean()) % 10)
+            if utility_matrix.iloc[query, user] == 0:
+                utility_matrix.iloc[query, user] = round((random.randint(1, 100) * utility_matrix.iloc[:, user].mean()) % 10)
 
 # Subtract the mean of each row (query) from the ratings
 centered_matrix = utility_matrix.copy()
@@ -150,6 +151,7 @@ print('counter exception:', counter)
 
 
 with open('../data/viz.html', 'w') as f:
+    f.write(test_utility_matrix.to_html())
     f.write(utility_matrix.to_html())
     f.write(complete_utility_matrix.to_html())
 
