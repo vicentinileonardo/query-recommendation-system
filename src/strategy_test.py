@@ -1,16 +1,24 @@
 import pandas as pd
 import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.metrics.pairwise import cosine_similarity
+from math import sqrt
 import random
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # set pandas to print the entire dataframe when printing
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+# start time
+import time
+start_time = time.time()
+
 utility_matrix = pd.read_csv('../data/_utility_matrix.csv', index_col=0)
 
 utility_matrix = utility_matrix.T
-utility_matrix = utility_matrix.iloc[:89, :50]
+utility_matrix = utility_matrix.iloc[:15, :15]
 utility_matrix = utility_matrix.fillna(np.nan)
 
 '''
@@ -41,7 +49,7 @@ for query in range(utility_matrix.shape[0]):
     if utility_matrix.iloc[query, :].mean() == 0:
         for user in range(utility_matrix.shape[1]):
             if utility_matrix.iloc[query, user] == 0:
-                utility_matrix.iloc[query, user] = round((random.randint(1, 100) * utility_matrix.iloc[:, user].mean()) % 10)
+                utility_matrix.iloc[query, user] = round((1 * utility_matrix.iloc[:, user].mean()) % 10)
 
 # Subtract the mean of each row (query) from the ratings
 centered_matrix = utility_matrix.copy()
@@ -74,15 +82,15 @@ def calculate_rating(utility_matrix, counter, user=4, query=0, top_n=2):
 
     # selecting the column related to the similarities of the specific query against the others
     similarities = similarities[query, :]
-    print('similarities:', similarities)
+    #print('similarities:', similarities)
 
     # Sort the similarities in descending order
     sorted_similarities = np.argsort(similarities)[::-1]
-    print('sorted_sim:', sorted_similarities)
+    #print('sorted_sim:', sorted_similarities)
 
     # Select the top N similar queries, excluding the query itself
     top_n_similarities = sorted_similarities[1:top_n+1]
-    print('top similarities: ', top_n_similarities)
+    #print('top similarities: ', top_n_similarities)
 
     rating = 0
     for i in top_n_similarities:
@@ -92,11 +100,11 @@ def calculate_rating(utility_matrix, counter, user=4, query=0, top_n=2):
         else:
             rating += similarities[i] * utility_matrix.iloc[i, user]
     #print(rating)
-    print('sum', similarities[top_n_similarities].sum())
+    #print('sum', similarities[top_n_similarities].sum())
 
     # handle division by zero
     if similarities[top_n_similarities].sum() == 0:
-        print('inside exception')
+        #print('inside exception')
 
         # option 1: return the mean of the query
         rating = utility_matrix.iloc[query, :].mean()
@@ -136,24 +144,64 @@ counter = {"c_exception": 0, "c_normal": 0}
 for row in range(utility_matrix.shape[0]):
     for col in range(utility_matrix.shape[1]):
         if np.isnan(utility_matrix.iloc[row, col]):
-            print('row: ', row, 'col: ', col)
+            #print('row: ', row, 'col: ', col)
 
             rating, counter_exception = calculate_rating(utility_matrix, counter, user=col, query=row, top_n=4)
             complete_utility_matrix.iloc[row, col] = rating
-            print('rating: ', rating)
+            #print('rating: ', rating)
             # append the rating also to a list
             ratings_list.append(rating)
 
-print('rating_list:', ratings_list)
+#print('rating_list:', ratings_list)
 #print(utility_matrix)
 #print(complete_utility_matrix)
-print('counter exception:', counter)
+#print('counter exception:', counter)
+
+# end time
+end_time = time.time()
+print('time:', end_time - start_time)
+
+
+real_utility_matrix_complete = pd.read_csv('../data/_utility_matrix_complete.csv', index_col=0)
+real_utility_matrix_complete = real_utility_matrix_complete.T
+real_utility_matrix_complete = real_utility_matrix_complete.iloc[:89, :50]
+
+difference_utility_matrix = (real_utility_matrix_complete - complete_utility_matrix)
+
+'''
+# calculate the RMSE
+rmse = sqrt(mean_squared_error(real_utility_matrix_complete, complete_utility_matrix))
+print('RMSE:', rmse)
+
+# calculate the MAE
+mae = mean_absolute_error(real_utility_matrix_complete, complete_utility_matrix)
+print('MAE:', mae)
+
+# calculate the MAPE
+mape = np.mean(np.abs((real_utility_matrix_complete - complete_utility_matrix) / real_utility_matrix_complete)) * 100
+print('MAPE:', mape)
+'''
 
 
 with open('../data/viz.html', 'w') as f:
     f.write(test_utility_matrix.to_html())
     f.write(utility_matrix.to_html())
     f.write(complete_utility_matrix.to_html())
+    f.write(difference_utility_matrix.to_html())
 
+
+
+def plot_heatmap(matrix, title):
+    plt.figure(figsize=(100, 100))
+    fig, ax = plt.subplots()
+    im = ax.imshow(matrix, cmap='RdBu')
+    ax.set_title(title)
+    fig.tight_layout()
+    cbar = ax.figure.colorbar(im, ax=ax)
+    cbar.ax.set_ylabel('rating', rotation=-90, va="bottom")
+    plt.show()
+
+
+plot_heatmap(difference_utility_matrix, 'difference utility matrix')
 
 
