@@ -6,21 +6,23 @@ from math import sqrt
 import random
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 
 # set pandas to print the entire dataframe when printing
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 # start time
-import time
 start_time = time.time()
 
+# import the partial utility matrix
 utility_matrix = pd.read_csv('../data/_utility_matrix.csv', index_col=0)
 
 utility_matrix = utility_matrix.T
-utility_matrix = utility_matrix.iloc[:15, :15]
+utility_matrix = utility_matrix.iloc[:250, :2500]
 utility_matrix = utility_matrix.fillna(np.nan)
 
+# example dataset, from the course slides
 '''
 dummy_um = pd.DataFrame([[1, np.nan, 3, np.nan, np.nan, 5, np.nan, np.nan, 5, np.nan, 4, np.nan],
                        [np.nan, np.nan, 5, 4, np.nan, np.nan, 4, np.nan, np.nan, 2, 1, 3],
@@ -42,7 +44,7 @@ utility_matrix = dummy_um
 
 #print(utility_matrix)
 
-test_utility_matrix = utility_matrix.copy()
+partial_utility_matrix = utility_matrix.copy()
 
 # Addressing issue #01 check if row mean == 0 (only 0s and NAs), if that is true,  change the 0.0s with 1.0s
 for query in range(utility_matrix.shape[0]):
@@ -50,6 +52,8 @@ for query in range(utility_matrix.shape[0]):
         for user in range(utility_matrix.shape[1]):
             if utility_matrix.iloc[query, user] == 0:
                 utility_matrix.iloc[query, user] = round((1 * utility_matrix.iloc[:, user].mean()) % 10)
+
+
 
 # Subtract the mean of each row (query) from the ratings
 centered_matrix = utility_matrix.copy()
@@ -139,6 +143,7 @@ print('test counter:', test_counter)
 
 # loop all the cell of utility matrix with nan and calculate the rating
 complete_utility_matrix = utility_matrix.copy()
+print('complete matrix shape:', complete_utility_matrix.shape)
 ratings_list = []
 counter = {"c_exception": 0, "c_normal": 0}
 for row in range(utility_matrix.shape[0]):
@@ -151,6 +156,8 @@ for row in range(utility_matrix.shape[0]):
             #print('rating: ', rating)
             # append the rating also to a list
             ratings_list.append(rating)
+    print('Row: ', row, 'Estimated percentage of completion: ', round((row / utility_matrix.shape[0]) * 100, 2), '%')
+
 
 #print('rating_list:', ratings_list)
 #print(utility_matrix)
@@ -164,10 +171,13 @@ print('time:', end_time - start_time)
 
 real_utility_matrix_complete = pd.read_csv('../data/_utility_matrix_complete.csv', index_col=0)
 real_utility_matrix_complete = real_utility_matrix_complete.T
-real_utility_matrix_complete = real_utility_matrix_complete.iloc[:89, :50]
+real_utility_matrix_complete = real_utility_matrix_complete.iloc[:250, :250]
 
 difference_utility_matrix = (real_utility_matrix_complete - complete_utility_matrix)
 
+
+
+# testing performances
 '''
 # calculate the RMSE
 rmse = sqrt(mean_squared_error(real_utility_matrix_complete, complete_utility_matrix))
@@ -184,7 +194,7 @@ print('MAPE:', mape)
 
 
 with open('../data/viz.html', 'w') as f:
-    f.write(test_utility_matrix.to_html())
+    f.write(partial_utility_matrix.to_html())
     f.write(utility_matrix.to_html())
     f.write(complete_utility_matrix.to_html())
     f.write(difference_utility_matrix.to_html())
@@ -192,16 +202,48 @@ with open('../data/viz.html', 'w') as f:
 
 
 def plot_heatmap(matrix, title):
-    plt.figure(figsize=(100, 100))
-    fig, ax = plt.subplots()
-    im = ax.imshow(matrix, cmap='RdBu')
+    fig, ax = plt.subplots(figsize=(100, 100))
+    sns.heatmap(matrix, cmap='coolwarm', ax=ax)
     ax.set_title(title)
-    fig.tight_layout()
-    cbar = ax.figure.colorbar(im, ax=ax)
-    cbar.ax.set_ylabel('rating', rotation=-90, va="bottom")
     plt.show()
 
-
 plot_heatmap(difference_utility_matrix, 'difference utility matrix')
+
+
+def get_top_k_queries(partial_utility_matrix, utility_matrix, user=0, top_k=10):
+    if partial_utility_matrix.shape != utility_matrix.shape:
+        print('The shape of the two matrices are different! Something went wrong!')
+        return
+
+    # create a list of tuples (query, rating)
+    query_rating_list = []
+    for query in range(partial_utility_matrix.shape[0]):
+        # if the query is not rated by the user
+        if np.isnan(partial_utility_matrix.iloc[query, user]):
+            query_rating_list.append((query, utility_matrix.iloc[query, user]))
+
+    # sort the list of tuples by rating
+    query_rating_list.sort(key=lambda x: x[1], reverse=True)
+
+    # return the top N queries
+    return query_rating_list[:top_k]
+
+# test
+# get the top 10 queries for user 0
+top_k_queries = get_top_k_queries(partial_utility_matrix, complete_utility_matrix, user=0, top_k=10)
+print('top 10 queries for user 0:', top_k_queries)
+
+# get the top 10 queries for user 15
+top_k_queries = get_top_k_queries(partial_utility_matrix, complete_utility_matrix, user=15, top_k=10)
+print('top 10 queries for user 15:', top_k_queries)
+
+
+def save_top_k_queries(partial_utility_matrix, utility_matrix, top_k=10):
+    for user in range(utility_matrix.shape[1]):
+        top_k_queries = get_top_k_queries(partial_utility_matrix, complete_utility_matrix, user, top_k)
+
+    path = '../data/top_' + top_k + '_queries.txt'
+    with open(path, 'w') as f:
+            f.write('top', top_k, ' queries for user [ ' + str(user) + ']: ' + str(top_k_queries) + ' \n')
 
 
