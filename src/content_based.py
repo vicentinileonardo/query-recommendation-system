@@ -6,6 +6,13 @@ from sklearn.preprocessing import OneHotEncoder
 
 from item_item_CF import import_data
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 def import_dataset(path):
     data = []
     with open(path, 'r') as f:
@@ -68,12 +75,12 @@ def get_users_profiles(users_top_k_queries):
                 if k not in user_queries_map:
                     user_queries_map[k] = [(users_top_k_queries[i][j][0][k], users_top_k_queries[i][j][1])]
                 else:
-                    # check if the value is already in the list, if yes, sum the rating
+                    # check if the value is already in the list, if yes, make the mean of the rating
                     value_found = False
                     for l in range(len(user_queries_map[k])):
                         if users_top_k_queries[i][j][0][k] == user_queries_map[k][l][0]:
                             value_found = True
-                            user_queries_map[k][l] = (user_queries_map[k][l][0], user_queries_map[k][l][1] + users_top_k_queries[i][j][1])
+                            user_queries_map[k][l] = (user_queries_map[k][l][0], (user_queries_map[k][l][1] + users_top_k_queries[i][j][1]) / 2)
                             break
                     if not value_found:
                         user_queries_map[k].append((users_top_k_queries[i][j][0][k], users_top_k_queries[i][j][1]))
@@ -95,14 +102,17 @@ def get_users_profiles(users_top_k_queries):
         users_queries_map.append(user_queries_map)
 
     # generate the user profiles as a list
+    '''
     users_profiles = []
     for i in range(len(users_queries_map)):
         user_profile = []
         for key in users_queries_map[i]:
             user_profile.append(users_queries_map[i][key][0][0])
         users_profiles.append(user_profile)
+    '''
 
-    return users_profiles, users_queries_map
+    #return users_profiles, users_queries_map
+    return users_queries_map
 
 if __name__ == '__main__':
 
@@ -130,29 +140,21 @@ if __name__ == '__main__':
     users_top_k_queries = get_top_queries(users_queries_rated, TOP_Q)
     print('Top ' + str(TOP_Q) + ' queries of user 9: ', users_top_k_queries[9])
 
-    # get the user profiles and the map of the queries
-    users_profiles, users_queries_map = get_users_profiles(users_top_k_queries)
+    # get the user map of the queries
+    users_queries_map = get_users_profiles(users_top_k_queries)
 
-    print('User 9 profile: ', users_profiles[9])
 
 
     ###############################
 
-    users_profiles = np.array(users_profiles)
+
     queries = np.array(queries)
 
-    print('Users profiles shape: ', users_profiles.shape)
-    print('Queries shape: ', queries.shape)
 
     categories = {}
     # set the keys of the dictionary as the attributes of the queries, values are sets of the possible values of the attributes
     for i in range(len(queries[0])):
         categories[i] = set()
-
-    # add the unique values of each column in the users_profiles dataset to the corresponding set in the categories dictionary
-    for i in range(users_profiles.shape[1]):
-        for value in np.unique(users_profiles[:, i]):
-            categories[i].add(value)
 
     # add the unique values of each column in the queries dataset to the corresponding set in the categories dictionary
     for i in range(queries.shape[1]):
@@ -163,7 +165,7 @@ if __name__ == '__main__':
     for key in categories:
         categories[key].remove('')
 
-    # generate a list of list instead of a dictionary, to be used in the OneHotEncoder
+    # generate a list of list instead of a dictionary
     categories_list = []
     for key in categories:
         categories_list.append(list(categories[key]))
@@ -186,61 +188,134 @@ if __name__ == '__main__':
         for key in users_queries_map[i]:
             users_queries_map[i][key] = sorted(users_queries_map[i][key], key=lambda x: x[0])
 
-    #print all the maps
-    #for i in range(len(users_queries_map)):
-    #    print('User', i, 'map:', users_queries_map[i])
-
     # check if the number of values for each key is the same for all users, should never happen if the code is correct
     for key in users_queries_map[0]:
         for i in range(len(users_queries_map)):
+            if i == 0:
+                print('First check')
+                print('Number of values for key', key, 'is', len(users_queries_map[i][key]))
             if len(users_queries_map[0][key]) != len(users_queries_map[i][key]):
                 print('ERROR: Different number of values for key', key, 'for user', i)
 
+    # loop through the users queries map and if the first value of the list of each key is_numeric, make a weighted mean with the values using as weight the second value of the tuple
+    for i in range(len(users_queries_map)):
+        for key in users_queries_map[i]:
+            if is_number(users_queries_map[i][key][0][0]):
+                sum = 0
+                weight_sum = 0
+                for j in range(len(users_queries_map[i][key])):
+                    sum += float(users_queries_map[i][key][j][0]) * users_queries_map[i][key][j][1]
+                    weight_sum += users_queries_map[i][key][j][1]
+                if weight_sum > 0:
+                    users_queries_map[i][key] = [(sum / weight_sum, sum / weight_sum)]
+                else:
+                    users_queries_map[i][key] = [(0, 0)]
+
+    for key in users_queries_map[0]:
+        for i in range(len(users_queries_map)):
+            if i == 0:
+                print('Second check')
+                print('Number of values for key', key, 'is', len(users_queries_map[i][key]))
+            if len(users_queries_map[0][key]) != len(users_queries_map[i][key]):
+                print('ERROR: Different number of values for key', key, 'for user', i)
+
+    # generate a list of queries map like the users_queries_map,loop through the categories list, if the value is present in the query, set the rating to 1, else 0
+    queries_map = []
+    for i in range(len(queries)):
+        query_map = {}
+        for key in categories:
+            query_map[key] = []
+            for j in range(len(categories_list[key])):
+                if categories_list[key][j] == queries[i][key]:
+                    query_map[key].append((categories_list[key][j], 100.0))
+                else:
+                    query_map[key].append((categories_list[key][j], 0.0))
+        queries_map.append(query_map)
+
+    # sort the value alphabetically
+    for i in range(len(queries_map)):
+        for key in queries_map[i]:
+            queries_map[i][key] = sorted(queries_map[i][key], key=lambda x: x[0])
+
+    # loop through the queries map and if the first value of the list of each key is_numeric, make a weighted mean with the values using as weight the second value of the tuple
+    for i in range(len(queries_map)):
+        for key in queries_map[i]:
+            if is_number(queries_map[i][key][0][0]):
+                sum = 0
+                weight_sum = 0
+                for j in range(len(queries_map[i][key])):
+                    sum += float(queries_map[i][key][j][0]) * queries_map[i][key][j][1]
+                    weight_sum += queries_map[i][key][j][1]
+                if weight_sum > 0:
+                    queries_map[i][key] = [(sum / weight_sum, sum / weight_sum)]
+                else:
+                    queries_map[i][key] = [(0, 0)]
+
+    print(queries_map[12])
+    print(queries[12])
 
 
 
+    # generate the user profiles as a list, only a list of the values, not a list of list of tuples
+    users_profiles = []
+    for i in range(len(users_queries_map)):
+        user_profile = []
+        for key in users_queries_map[i]:
+            for j in range(len(users_queries_map[i][key])):
+                user_profile.append(users_queries_map[i][key][j][1])
+        users_profiles.append(user_profile)
 
-
-
-
-
-
-
-    '''
-    # define the threshold for the number of unique values
-    threshold = 300
-    encoders = {}
-
-    # Encode the user_profiles dataset
-    for i in range(users_profiles.shape[1]):
-        unique_values = np.unique(users_profiles[:, i])
-        print('Number of unique values for attribute ' + str(i) + ': ', len(unique_values))
-        print('Unique values for attribute ' + str(i) + ': ', unique_values)
-        if len(unique_values) < threshold:
-            enc = OneHotEncoder(handle_unknown='ignore')
-            encoded_data = enc.fit_transform(users_profiles[:, [i]]).toarray()
-            users_profiles = np.delete(users_profiles, [i], axis=1)
-            users_profiles = np.concatenate([users_profiles, encoded_data], axis=1)
-            encoders[i] = enc
-
-    # Encode the queries dataset using the same encoding
-    for i in range(queries.shape[1]):
-        if i in encoders:
-            encoded_data = encoders[i].transform(queries[:, [i]]).toarray()
-            queries = np.delete(queries, [i], axis=1)
-            queries = np.concatenate([queries, encoded_data], axis=1)
+    # generate the query profiles as a list
+    queries_profiles = []
+    for i in range(len(queries_map)):
+        query_profile = []
+        for key in queries_map[i]:
+            for j in range(len(queries_map[i][key])):
+                query_profile.append(queries_map[i][key][j][1])
+        queries_profiles.append(query_profile)
 
     print('User 0 profile: ', users_profiles[0])
-    print('Query 0: ', queries[0])
+    print('Query 0 profile: ', queries_profiles[0])
+    print('Query 12 profile: ', queries_profiles[12])
+
+    # normalize the user profiles in the range 0-1
+    for i in range(len(users_profiles)):
+        max = 0
+        for j in range(len(users_profiles[i])):
+            if users_profiles[i][j] > max:
+                max = users_profiles[i][j]
+        if max == 0:
+            max = 1
+        for j in range(len(users_profiles[i])):
+            users_profiles[i][j] = users_profiles[i][j] / max
+
+    # normalize the queries profiles in the range 0-1
+    for i in range(len(queries_profiles)):
+        max = 0
+        for j in range(len(queries_profiles[i])):
+            if queries_profiles[i][j] > max:
+                max = queries_profiles[i][j]
+        if max == 0:
+            max = 1
+        for j in range(len(queries_profiles[i])):
+            queries_profiles[i][j] = queries_profiles[i][j] / max
+
+    print('User 0 profile after normalization: ', users_profiles[0])
+    print('Query 0 profile after normalization: ', queries_profiles[0])
+    print('Query 12 profile after normalization: ', queries_profiles[12])
 
 
-    # Replace missing values with zeros
-    users_profiles[np.where(users_profiles == '')] = 0
-    queries[np.where(queries == '')] = 0
 
-    print('Users profiles: ', users_profiles)
-    print('Queries: ', queries)
-    '''
+
+    similarities = cosine_similarity(users_profiles, queries_profiles)
+    print('Similarity between user 0 and query 0: ', similarities[0][0])
+    print('Similarity between user 0 and query 12: ', similarities[0][12])
+    #print('Similarities: \n', similarities)
+
+    # print the top 10 similarities of all the users
+    #for i in range(len(similarities[:10])):
+    #    print('Top 10 similarities for user', i)
+    #    print(sorted(similarities[i], reverse=True)[:20])
 
 
 
