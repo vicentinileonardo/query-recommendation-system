@@ -15,7 +15,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 N_QUERIES = 100
-N_USERS = 3
+N_USERS = 4
 N_ITEMS = 7669
 
 TOP_N = 2
@@ -31,12 +31,10 @@ def import_data(matrix_type="partial"):
         path = os.path.join(DIR, '../data/_utility_matrix_complete.csv')
     elif matrix_type == "relational_data":
         path = os.path.join(DIR, '../data/real_data/movies_2.csv')
-    elif matrix_type == "preprocess_item":
-        path = os.path.join(DIR, '../data/FINAL_PREPROCESSING.csv')
-    elif matrix_type == "user_item":
-        path = os.path.join(DIR, '../data/prova_csv_z.csv')
+    elif matrix_type == "preprocess_queries":
+        path = os.path.join(DIR, '../data/movies_item_item_cf/preprocessed_queries.csv')
     elif matrix_type == "user_item_weighted":
-        path = os.path.join(DIR, '../data/FINAL_WEIGHTED_RAW.csv')
+        path = os.path.join(DIR, '../data/movies_item_item_cf/partial_users_items_utility_matrix.csv')
 
     else:
         print('Wrong matrix type!')
@@ -72,12 +70,20 @@ def preprocess_query(partial_utility_matrix_df,relational_data_df):
             else:
                 output_dictionary[item].append("")
 
-        print("preprocessing "+str(item_count))
+        print("preprocessing item: "+str(item_count))
         item_count+=1
-    csv_path= os.path.join(DIR, '../data/FINAL_PREPROCESSING.csv')
-    pd.DataFrame(data=output_dictionary, index=queries).to_csv(csv_path)            
+
+    preprocess_queries_df=pd.DataFrame(data=output_dictionary, index=queries)
+    csv_path= os.path.join(DIR, '../data/movies_item_item_cf/preprocessed_queries.csv')
+    preprocess_queries_df.to_csv(csv_path)
+
+    preprocess_queries_df = import_data('preprocess_queries')
+
+    return preprocess_queries_df         
 
 
+#unweighted version
+'''
 def create_relational_data_utility_matrix(partial_utility_matrix_df,preprocess_data_df):
     columns=preprocess_data_df.head(N_ITEMS).columns.values
     rows=partial_utility_matrix_df.head(N_USERS).index.values
@@ -114,10 +120,10 @@ def create_relational_data_utility_matrix(partial_utility_matrix_df,preprocess_d
 
     relational_data_utility_matrix=pd.DataFrame(data=output_dictionary, index=rows)
 
-    csv_path= os.path.join(DIR, '../data/prova_csv_p.csv')
+    csv_path= os.path.join(DIR, '../data/movies_item_item_cf/prova_csv_p.csv')
     relational_data_utility_matrix.to_csv(csv_path)
 
-    return relational_data_utility_matrix 
+    return relational_data_utility_matrix '''
 
 
 def create_relational_data_utility_matrix_weighted(partial_utility_matrix_df,preprocess_data_df):
@@ -171,9 +177,10 @@ def create_relational_data_utility_matrix_weighted(partial_utility_matrix_df,pre
 
     relational_data_utility_matrix=pd.DataFrame(data=output_dictionary, index=rows)
 
-    csv_path= os.path.join(DIR, '../data/FINAL_WEIGHTED_RAW.csv')
+    csv_path= os.path.join(DIR, '../data/movies_item_item_cf/partial_users_items_utility_matrix.csv')
     relational_data_utility_matrix.to_csv(csv_path)
 
+    relational_data_utility_matrix = import_data('user_item_weighted')
     return relational_data_utility_matrix 
 
 
@@ -211,11 +218,11 @@ def create_utility_matrix_from_item_matrix(user_item_df,preprocess_data_df,parti
         user_counter+=1
         print("recostructing user-query utility matrix, n users computed= "+str(user_counter))
 
-    proposed_utility_matrix=pd.DataFrame(data=output_dictionary, index=rows)
-    path= os.path.join(DIR, '../data/FINAL_OUTPUT.csv')
-    proposed_utility_matrix.to_csv(path)
+    utility_matrix_complete=pd.DataFrame(data=output_dictionary, index=rows)
+    path= os.path.join(DIR, '../data/movies_item_item_cf/complete_utility_matrix.csv')
+    utility_matrix_complete.to_csv(path)
 
-    return proposed_utility_matrix         
+    return utility_matrix_complete         
 
 def prepare_matrix(matrix, n_items=100, n_users=100):
     matrix = matrix.T
@@ -418,7 +425,7 @@ def calculate_mre(real_utility_matrix_complete, utility_matrix_complete, epsilon
     return (np.fabs(actual - predicted)/(actual + epsilon))[mask].mean()
 
 def print_data_to_html(utility_matrix_before_pp, partial_utility_matrix, centered_matrix, utility_matrix_complete, difference_utility_matrix):
-    with open(os.path.join(DIR, '../data/viz.html'), 'w') as f:
+    with open(os.path.join(DIR, '../data/movies_item_item_cf/viz.html'), 'w') as f:
         f.write("<html><head><title>Visualization</title></head><body>")
         f.write("<h1>Utility Matrix Before Preprocessing</h1>")
         f.write(utility_matrix_before_pp.to_html())
@@ -444,7 +451,7 @@ def plot_heatmap(utility_matrix, title, annot=True, n_rows=100, n_columns=100):
     plt.yticks(fontsize=12)
 
     # save the plot
-    plt.savefig(os.path.join(DIR, '../data/heatmap.png'))
+    plt.savefig(os.path.join(DIR, '../data/movies_item_item_cf/heatmap.png'))
     plt.show()
 
 def get_top_k_items(partial_utility_matrix, utility_matrix_complete, user=0, top_k=10):
@@ -466,7 +473,7 @@ def get_top_k_items(partial_utility_matrix, utility_matrix_complete, user=0, top
     return item_rating_list[:top_k]
 
 def save_top_k_items(partial_utility_matrix, utility_matrix_complete, top_k=10, n_users=10):
-    path = '../data/top_' + str(top_k) + '_items_n_' + str(n_users) + '_users.txt'
+    path = '../data/movies_item_item_cf/top_' + str(top_k) + '_items_n_' + str(n_users) + '_users.txt'
     path = os.path.join(DIR, path)
     
     with open(path, 'w') as f:
@@ -503,47 +510,55 @@ if __name__ == '__main__':
     end_time_load = time.time()
     print('Time taken to load the matrix of relational data:', end_time_load - start_time_load)
 
-    #already computed
-    #preprocess_query_df = preprocess_query(partial_utility_matrix_df,relational_data_df)
+    start_time_pp_queries = time.time()
+    #preprocess_queries_df = preprocess_query(partial_utility_matrix_df,relational_data_df)
+    end_time_pp_queries = time.time()
+    print('Time taken to preprocess the queries:', end_time_pp_queries - start_time_pp_queries)
 
+    #uncomment if you want to use a previous precomputation
     start_time_load = time.time()
-    preprocess_data_df = import_data('preprocess_item')
+    preprocess_queries_df = import_data('preprocess_queries')
     end_time_load = time.time()
-    print('Time taken to load the matrix of preprocess data:', end_time_load - start_time_load)
+    print('Time taken to load the matrix of preprocess data:', end_time_load - start_time_load) 
+    
+    start_time_new_matrix = time.time()
+    #new_partial_utility_matrix=create_relational_data_utility_matrix_weighted(partial_utility_matrix_df,preprocess_queries_df)
+    end_time_new_matrix = time.time()
+    print('Time taken to compute the new user-item utility matrix:', end_time_new_matrix - start_time_new_matrix)
 
-    #not weighted version
-    #create_relational_data_utility_matrix(partial_utility_matrix_df,preprocess_data_df)
-
-    create_relational_data_utility_matrix_weighted(partial_utility_matrix_df,preprocess_data_df)
-
+    #uncomment
     start_time_load = time.time()
-    partial_utility_matrix = import_data('user_item_weighted')
+    new_partial_utility_matrix = import_data('user_item_weighted')
     end_time_load = time.time()
-    print('Time taken to load the matrix of user-item-weighted data:', end_time_load - start_time_load)
+    print('Time taken to load the matrix of user-item-weighted data:', end_time_load - start_time_load) 
 
     # preprocess the data
     start_time_pp = time.time()
-    utility_matrix_before_pp, partial_utility_matrix, centered_matrix = preprocess_data(partial_utility_matrix, n_items=N_ITEMS, n_users=N_USERS)
+    utility_matrix_before_pp, new_partial_utility_matrix, centered_matrix = preprocess_data(new_partial_utility_matrix, n_items=N_ITEMS, n_users=N_USERS)
     end_time_pp = time.time()
     print('Time taken to preprocess the item partial utility matrix:', end_time_pp - start_time_pp)
 
     # complete the utility matrix with the ratings
     start_time_cf = time.time()
-    items_utility_matrix_complete, ratings_list = collaborative_filtering(partial_utility_matrix, centered_matrix, top_n=TOP_N)
+    items_utility_matrix_complete, ratings_list = collaborative_filtering(new_partial_utility_matrix, centered_matrix, top_n=TOP_N)
     end_time_cf = time.time()
     print('Time taken to fill the item matrix with CF:', end_time_cf - start_time_cf)
 
-    path= os.path.join(DIR, '../data/FINAL_items_utility_matrix_complete.csv')
+    path= os.path.join(DIR, '../data/movies_item_item_cf/users_items_utility_matrix_complete.csv')
     items_utility_matrix_complete.to_csv(path)
 
-    proposed_utility_matrix=create_utility_matrix_from_item_matrix(items_utility_matrix_complete.T,preprocess_data_df,partial_utility_matrix_df)
-    proposed_utility_matrix=proposed_utility_matrix.T
+    # recostructing from the users-items matrix the users-queries one
+    start_time_recostructing = time.time()
+    utility_matrix_complete=create_utility_matrix_from_item_matrix(items_utility_matrix_complete.T,preprocess_queries_df,partial_utility_matrix_df)
+    utility_matrix_complete=utility_matrix_complete.T
+    end_time_recostructing = time.time()
+    print('Time taken recostructing the complete users-queries utility matrix:', end_time_recostructing - start_time_recostructing)
 
     #COMPUTE RESULTS 
-    difference_utility_matrix = compute_difference(proposed_utility_matrix, n_items=N_ITEMS, n_users=N_USERS)
+    difference_utility_matrix = compute_difference(utility_matrix_complete, n_items=N_ITEMS, n_users=N_USERS)
 
     # print the data to html, for testing purposes
-    print_data_to_html(utility_matrix_before_pp, partial_utility_matrix, centered_matrix, proposed_utility_matrix, difference_utility_matrix)
+    print_data_to_html(utility_matrix_before_pp, new_partial_utility_matrix, centered_matrix, utility_matrix_complete, difference_utility_matrix)
 
     # plot the heatmap of the difference utility matrix
     plot_heatmap(difference_utility_matrix, 'Difference', annot=False, n_rows=N_ITEMS, n_columns=N_USERS)
@@ -552,31 +567,31 @@ if __name__ == '__main__':
     real_utility_matrix_complete = prepare_matrix(real_utility_matrix_complete, n_items=N_ITEMS, n_users=N_USERS)
 
     print('--------------')
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), '--------------\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), '--------------\n')
     print('Configuration: N_ITEMS =', N_ITEMS, ', N_USERS =', N_USERS)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'Configuration: N_ITEMS = ' + str(N_ITEMS) + ', N_USERS = ' + str(N_USERS) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), 'Configuration: N_ITEMS = ' + str(N_ITEMS) + ', N_USERS = ' + str(N_USERS) + '\n')
 
     # calculate and printing the performances
     print('\033[1m' + 'Performance of the item-item collaborative filtering algorithm:' + '\033[0m')
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'Performance of the item-item collaborative filtering algorithm:\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), 'Performance of the item-item collaborative filtering algorithm:\n')
 
     # mean absolute error: might be helped by the correct prediction of the 0s
-    mae = calculate_mae(real_utility_matrix_complete, proposed_utility_matrix)
+    mae = calculate_mae(real_utility_matrix_complete, utility_matrix_complete)
     print('MAE: ', mae)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'MAE: ' + str(mae) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), 'MAE: ' + str(mae) + '\n')
 
     # RMSE is sensitive to outliers, since the square operation magnifies larger errors.
-    rmse = calculate_rmse(real_utility_matrix_complete, proposed_utility_matrix)
+    rmse = calculate_rmse(real_utility_matrix_complete, utility_matrix_complete)
     print('RMSE :', rmse)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'RMSE: ' + str(rmse) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), 'RMSE: ' + str(rmse) + '\n')
 
-    mape = calculate_mape(real_utility_matrix_complete, proposed_utility_matrix)
+    mape = calculate_mape(real_utility_matrix_complete, utility_matrix_complete)
     print('MAPE :', mape)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'MAPE: ' + str(mape) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), 'MAPE: ' + str(mape) + '\n')
 
-    mre = calculate_mre(real_utility_matrix_complete, proposed_utility_matrix)
+    mre = calculate_mre(real_utility_matrix_complete, utility_matrix_complete)
     print('MRE: ', mre)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'MRE: ' + str(mre) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/movies_item_item_cf/performance.txt'), 'MRE: ' + str(mre) + '\n')
 
     # save the top k items
-    save_top_k_items(partial_utility_matrix, proposed_utility_matrix, top_k=TOP_K_QUERIES, n_users=N_USERS_TOP_K_QUERIES)
+    save_top_k_items(new_partial_utility_matrix, utility_matrix_complete, top_k=TOP_K_QUERIES, n_users=N_USERS_TOP_K_QUERIES)
