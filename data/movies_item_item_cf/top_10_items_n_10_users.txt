@@ -1,0 +1,10 @@
+Top 10 items for user [0]: None 
+Top 10 items for user [1]: None 
+Top 10 items for user [2]: None 
+Top 10 items for user [3]: None 
+Top 10 items for user [4]: None 
+Top 10 items for user [5]: None 
+Top 10 items for user [6]: None 
+Top 10 items for user [7]: None 
+Top 10 items for user [8]: None 
+Top 10 items for user [9]: None 
