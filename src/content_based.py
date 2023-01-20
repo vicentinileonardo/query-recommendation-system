@@ -7,7 +7,7 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from scipy.stats import pearsonr
 
-from item_item_CF import import_data, calculate_rmse, calculate_mae, calculate_mre, calculate_mape
+from item_item_CF import import_data, calculate_rmse, calculate_mae, calculate_mre, calculate_mape, log_to_txt
 
 def is_number(s):
     try:
@@ -259,49 +259,7 @@ def get_queries_map_positions(queries_map):
 
     return queries_map_positions
 
-
-if __name__ == '__main__':
-
-    TOP_Q = 100
-
-    # query profiles
-    queries = import_dataset('../data/_queries.csv')
-    print('Number of queries: ', len(queries))
-    print('Number of attributes: ', len(queries[0]))
-    print('Example of query, query 0: ', queries[0])
-
-
-    ############## CREATING USER PROFILES ##############
-
-    # import partial utility matrix
-    partial_utility_matrix = import_data('partial')
-
-    # get users queries rated
-    users_queries_rated = get_users_queries(partial_utility_matrix)
-    print('Queries of user 9: ', users_queries_rated[9])
-
-    # get the TOP_Q queries for each user
-    users_top_k_queries = get_top_queries(users_queries_rated, TOP_Q)
-    print('Top ' + str(TOP_Q) + ' queries of user 9: ', users_top_k_queries[9])
-
-    # get the user map of the queries
-    users_queries_map = get_users_queries_map(users_top_k_queries)
-
-    categories_list, categories = get_categories(queries)
-
-    print('Categories list: ', categories_list)
-
-    users_queries_map = fill_users_queries_map(users_queries_map, categories_list)
-    queries_map = fill_queries_map(queries, categories_list)
-
-    queries_map_positions = get_queries_map_positions(queries_map)
-
-    users_profiles = get_users_profiles(users_queries_map)
-    queries_profiles = get_queries_profiles(queries_map)
-
-    TOP_VALUES_TO_KEEP = 1
-    # looping through all the profile and do pearson correlation, creating a matrix of the results
-    utility_matrix_computed = np.zeros((len(users_profiles), len(queries_profiles)))
+def compute_utility_matrix(users_profiles, queries_profiles, users_queries_map, queries_map_positions, TOP_VALUES_TO_KEEP=1, verbose=False):
 
     for i in range(len(users_profiles)):
         for j in range(len(queries_profiles)):
@@ -310,13 +268,11 @@ if __name__ == '__main__':
             for key in dynamic_user_map:
                 dynamic_user_map[key] = sorted(dynamic_user_map[key], key=lambda x: x[1], reverse=True)[:TOP_VALUES_TO_KEEP]
 
-
                 # Option 1: impute mean of the values of that key, for missing values
                 sum = 0
                 for k in range(len(dynamic_user_map[key])):
                     sum += dynamic_user_map[key][k][1]
                 key_mean = sum / len(dynamic_user_map[key])
-
 
                 # using the query map positions, check if the dynamic user map has that value for that key
                 for p in queries_map_positions[j]:
@@ -341,7 +297,6 @@ if __name__ == '__main__':
 
             # get all the 2nd elements of the list of tuples queries_map_positions[j]
             values = [x[1] for x in queries_map_positions[j]]
-            #print('Values: ', values)
 
             # create dynamic query map with the same values of dynamic user map
             dynamic_query_map = {}
@@ -353,20 +308,20 @@ if __name__ == '__main__':
                     else:
                         dynamic_query_map[key].append((dynamic_user_map[key][k][0], 0.0))
 
-
             # sort alphabetically the values
             for key in dynamic_query_map:
                 dynamic_query_map[key] = sorted(dynamic_query_map[key], key=lambda x: x[0])
 
-
-            print('User ' + str(i) + ' map, for query' + str(j), dynamic_user_map)
-            print('Query ' + str(j) + ' map, for user' + str(i), dynamic_query_map)
+            if verbose:
+                print('User ' + str(i) + ' map, for query' + str(j), dynamic_user_map)
+                print('Query ' + str(j) + ' map, for user' + str(i), dynamic_query_map)
 
             dynamic_user_profile = get_users_profiles([dynamic_user_map])[0]
             dynamic_query_profile = get_queries_profiles([dynamic_query_map])[0]
 
-            print('User ' + str(i) + ' profile, for query' + str(j), dynamic_user_profile)
-            print('Query ' + str(j) + ' profile, for user' + str(i), dynamic_query_profile)
+            if verbose:
+                print('User ' + str(i) + ' profile, for query' + str(j), dynamic_user_profile)
+                print('Query ' + str(j) + ' profile, for user' + str(i), dynamic_query_profile)
 
             #rating = pearsonr(dynamic_user_profile, dynamic_query_profile)[0] * 100
             rating = cosine_similarity([dynamic_user_profile], [dynamic_query_profile])[0][0] * 100
@@ -376,14 +331,16 @@ if __name__ == '__main__':
             elif rating > 100:
                 rating = 100
 
-            #print('Rating (Pearson correlation) between user ' + str(i) + ' and query ' + str(j) + ': ', rating)
-            print('Rating (Cosine similarity) between user ' + str(i) + ' and query ' + str(j) + ': ', rating)
+            if verbose:
+                #print('Rating (Pearson correlation) between user ' + str(i) + ' and query ' + str(j) + ': ', rating)
+                print('Rating (Cosine similarity) between user ' + str(i) + ' and query ' + str(j) + ': ', rating)
 
-            utility_matrix_computed[i][j] = rating
+            utility_matrix_computed[i][j] = round(rating)
 
+    return utility_matrix_computed
 
+def fill_complete_utility_matrix(utility_matrix_complete, partial_utility_matrix, utility_matrix_computed):
 
-    utility_matrix_complete = partial_utility_matrix.copy()
     #print('Partial utility matrix before: ', utility_matrix_complete)
     for row in range(utility_matrix_complete.shape[0]):
         for col in range(utility_matrix_complete.shape[1]):
@@ -394,35 +351,88 @@ if __name__ == '__main__':
                 difference = abs(utility_matrix_computed[row, col] - row_mean)
 
                 if difference > 30:
-                    utility_matrix_computed[row, col] = utility_matrix_computed[row, col] * 0.3 + row_mean * 0.7
+                    utility_matrix_computed[row, col] = round(utility_matrix_computed[row, col] * 0.3 + row_mean * 0.7)
                 elif difference > 20:
-                    utility_matrix_computed[row, col] = utility_matrix_computed[row, col] * 0.4 + row_mean * 0.6
+                    utility_matrix_computed[row, col] = round(utility_matrix_computed[row, col] * 0.4 + row_mean * 0.6)
                 elif difference > 10:
-                    utility_matrix_computed[row, col] = utility_matrix_computed[row, col] * 0.5 + row_mean * 0.5
+                    utility_matrix_computed[row, col] = round(utility_matrix_computed[row, col] * 0.5 + row_mean * 0.5)
 
                 utility_matrix_complete.iloc[row][col] = utility_matrix_computed[row][col]
+
+    return utility_matrix_complete
+
+if __name__ == '__main__':
+
+    TOP_Q = 100
+
+    queries = import_dataset('../data/_queries.csv')
+
+
+    # import partial utility matrix
+    partial_utility_matrix = import_data('partial')
+
+    # get users queries rated
+    users_queries_rated = get_users_queries(partial_utility_matrix)
+
+    # get the TOP_Q queries for each user
+    users_top_k_queries = get_top_queries(users_queries_rated, TOP_Q)
+
+    # get the user map of the queries
+    users_queries_map = get_users_queries_map(users_top_k_queries)
+
+    categories_list, categories = get_categories(queries)
+
+    #print('Categories list: ', categories_list)
+
+    users_queries_map = fill_users_queries_map(users_queries_map, categories_list)
+    queries_map = fill_queries_map(queries, categories_list)
+
+    queries_map_positions = get_queries_map_positions(queries_map)
+
+    users_profiles = get_users_profiles(users_queries_map)
+    queries_profiles = get_queries_profiles(queries_map)
+
+    # looping through all the profile and do pearson correlation, creating a matrix of the results
+    utility_matrix_computed = np.zeros((len(users_profiles), len(queries_profiles)))
+    utility_matrix_computed = compute_utility_matrix(users_profiles, queries_profiles, users_queries_map, queries_map_positions, TOP_VALUES_TO_KEEP=1)
+
+    utility_matrix_complete = partial_utility_matrix.copy()
+    utility_matrix_complete = fill_complete_utility_matrix(utility_matrix_complete, partial_utility_matrix, utility_matrix_computed)
 
 
     # PERFORMANCE EVALUATION
     real_utility_matrix_complete = import_data('real_complete')
 
-    # print first 10 rows of the real utility matrix
-    #print('Real utility matrix: ', real_utility_matrix_complete[:10])
-
     difference_utility_matrix = (utility_matrix_complete - real_utility_matrix_complete)
     #print('Difference utility matrix: ', difference_utility_matrix[:10])
 
+    path_performance = '../data/content_based/performance.txt'
+
+    print('--------------')
+    log_to_txt(path_performance, '--------------\n')
+
+    print('Configuration:')
+    log_to_txt(path_performance,'Configuration: N' + '\n')
+
+    # calculate and printing the performances
+    print('\033[1m' + 'Performance of the item-item collaborative filtering algorithm:' + '\033[0m')
+    log_to_txt(path_performance, 'Performance of the item-item collaborative filtering algorithm:\n')
+
     mae = calculate_mae(real_utility_matrix_complete, utility_matrix_complete)
     print('MAE: ', mae)
+    log_to_txt(path_performance, 'MAE: ' + str(mae) + '\n')
 
     rmse = calculate_rmse(real_utility_matrix_complete, utility_matrix_complete)
     print('RMSE :', rmse)
+    log_to_txt(path_performance, 'RMSE: ' + str(rmse) + '\n')
 
     mape = calculate_mape(real_utility_matrix_complete, utility_matrix_complete)
     print('MAPE :', mape)
+    log_to_txt(path_performance, 'MAPE: ' + str(mape) + '\n')
 
     mre = calculate_mre(real_utility_matrix_complete, utility_matrix_complete)
     print('MRE: ', mre)
+    log_to_txt(path_performance, 'MRE: ' + str(mre) + '\n')
 
 
 
