@@ -3,8 +3,11 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from scipy.stats import pearsonr
 
-from item_item_CF import import_data
+from item_item_CF import import_data, calculate_rmse, calculate_mae, calculate_mre, calculate_mape
 
 def is_number(s):
     try:
@@ -54,7 +57,7 @@ def get_top_queries(users_queries_rated, TOP_Q=10):
         users_top_q_queries.append(user_top_q_queries)
     return users_top_q_queries
 
-def get_users_profiles(users_top_k_queries):
+def get_users_queries_map(users_top_k_queries):
 
     # TODO, MISSING: user weight (severity)
 
@@ -114,42 +117,9 @@ def get_users_profiles(users_top_k_queries):
     #return users_profiles, users_queries_map
     return users_queries_map
 
-if __name__ == '__main__':
-
-    TOP_Q = 100
-
-    # query profiles
-    queries = import_dataset('../data/_queries.csv')
-    print('Number of queries: ', len(queries))
-    print('Number of attributes: ', len(queries[0]))
-    print('Example of query, query 0: ', queries[0])
-
-    # alternative: movies profiles
-    movies = import_dataset('../data/real_data/movies_2.csv')
-
-    ############## CREATING USER PROFILES ##############
-
-    # import partial utility matrix
-    partial_utility_matrix = import_data('partial')
-
-    # get users queries rated
-    users_queries_rated = get_users_queries(partial_utility_matrix)
-    print('Queries of user 9: ', users_queries_rated[9])
-
-    # get the TOP_Q queries for each user
-    users_top_k_queries = get_top_queries(users_queries_rated, TOP_Q)
-    print('Top ' + str(TOP_Q) + ' queries of user 9: ', users_top_k_queries[9])
-
-    # get the user map of the queries
-    users_queries_map = get_users_profiles(users_top_k_queries)
-
-
-
-    ###############################
-
+def get_categories(queries):
 
     queries = np.array(queries)
-
 
     categories = {}
     # set the keys of the dictionary as the attributes of the queries, values are sets of the possible values of the attributes
@@ -169,7 +139,10 @@ if __name__ == '__main__':
     categories_list = []
     for key in categories:
         categories_list.append(list(categories[key]))
-    print('Categories list: ', categories_list)
+
+    return categories_list, categories
+
+def fill_users_queries_map(users_queries_map, categories_list):
 
     # loop trough each map, for every key, loop trough the categories list and check if the value is in the list, if not, add a tuple with that value and 0, not add duplicates
     for i in range(len(users_queries_map)):
@@ -188,15 +161,8 @@ if __name__ == '__main__':
         for key in users_queries_map[i]:
             users_queries_map[i][key] = sorted(users_queries_map[i][key], key=lambda x: x[0])
 
-    # check if the number of values for each key is the same for all users, should never happen if the code is correct
-    for key in users_queries_map[0]:
-        for i in range(len(users_queries_map)):
-            if i == 0:
-                print('First check')
-                print('Number of values for key', key, 'is', len(users_queries_map[i][key]))
-            if len(users_queries_map[0][key]) != len(users_queries_map[i][key]):
-                print('ERROR: Different number of values for key', key, 'for user', i)
 
+    '''
     # loop through the users queries map and if the first value of the list of each key is_numeric, make a weighted mean with the values using as weight the second value of the tuple
     for i in range(len(users_queries_map)):
         for key in users_queries_map[i]:
@@ -210,14 +176,11 @@ if __name__ == '__main__':
                     users_queries_map[i][key] = [(sum / weight_sum, sum / weight_sum)]
                 else:
                     users_queries_map[i][key] = [(0, 0)]
+    '''
 
-    for key in users_queries_map[0]:
-        for i in range(len(users_queries_map)):
-            if i == 0:
-                print('Second check')
-                print('Number of values for key', key, 'is', len(users_queries_map[i][key]))
-            if len(users_queries_map[0][key]) != len(users_queries_map[i][key]):
-                print('ERROR: Different number of values for key', key, 'for user', i)
+    return users_queries_map
+
+def fill_queries_map(queries, categories_list):
 
     # generate a list of queries map like the users_queries_map,loop through the categories list, if the value is present in the query, set the rating to 1, else 0
     queries_map = []
@@ -237,6 +200,8 @@ if __name__ == '__main__':
         for key in queries_map[i]:
             queries_map[i][key] = sorted(queries_map[i][key], key=lambda x: x[0])
 
+
+    '''
     # loop through the queries map and if the first value of the list of each key is_numeric, make a weighted mean with the values using as weight the second value of the tuple
     for i in range(len(queries_map)):
         for key in queries_map[i]:
@@ -250,11 +215,11 @@ if __name__ == '__main__':
                     queries_map[i][key] = [(sum / weight_sum, sum / weight_sum)]
                 else:
                     queries_map[i][key] = [(0, 0)]
+    '''
 
-    print(queries_map[12])
-    print(queries[12])
+    return queries_map
 
-
+def get_users_profiles(users_queries_map):
 
     # generate the user profiles as a list, only a list of the values, not a list of list of tuples
     users_profiles = []
@@ -265,6 +230,10 @@ if __name__ == '__main__':
                 user_profile.append(users_queries_map[i][key][j][1])
         users_profiles.append(user_profile)
 
+    return users_profiles
+
+def get_queries_profiles(queries_map):
+
     # generate the query profiles as a list
     queries_profiles = []
     for i in range(len(queries_map)):
@@ -274,48 +243,188 @@ if __name__ == '__main__':
                 query_profile.append(queries_map[i][key][j][1])
         queries_profiles.append(query_profile)
 
-    print('User 0 profile: ', users_profiles[0])
-    print('Query 0 profile: ', queries_profiles[0])
-    print('Query 12 profile: ', queries_profiles[12])
+    return queries_profiles
 
-    # normalize the user profiles in the range 0-1
+def get_queries_map_positions(queries_map):
+
+    # looping through the queries map and saving the key and value of the tuples containing 100.0
+    queries_map_positions = []
+    for i in range(len(queries_map)):
+        query_map_positions = []
+        for key in queries_map[i]:
+            for j in range(len(queries_map[i][key])):
+                if queries_map[i][key][j][1] == 100.0:
+                    query_map_positions.append((key, queries_map[i][key][j][0]))
+        queries_map_positions.append(query_map_positions)
+
+    return queries_map_positions
+
+
+if __name__ == '__main__':
+
+    TOP_Q = 100
+
+    # query profiles
+    queries = import_dataset('../data/_queries.csv')
+    print('Number of queries: ', len(queries))
+    print('Number of attributes: ', len(queries[0]))
+    print('Example of query, query 0: ', queries[0])
+
+
+    ############## CREATING USER PROFILES ##############
+
+    # import partial utility matrix
+    partial_utility_matrix = import_data('partial')
+
+    # get users queries rated
+    users_queries_rated = get_users_queries(partial_utility_matrix)
+    print('Queries of user 9: ', users_queries_rated[9])
+
+    # get the TOP_Q queries for each user
+    users_top_k_queries = get_top_queries(users_queries_rated, TOP_Q)
+    print('Top ' + str(TOP_Q) + ' queries of user 9: ', users_top_k_queries[9])
+
+    # get the user map of the queries
+    users_queries_map = get_users_queries_map(users_top_k_queries)
+
+    categories_list, categories = get_categories(queries)
+
+    print('Categories list: ', categories_list)
+
+    users_queries_map = fill_users_queries_map(users_queries_map, categories_list)
+    queries_map = fill_queries_map(queries, categories_list)
+
+    queries_map_positions = get_queries_map_positions(queries_map)
+
+    users_profiles = get_users_profiles(users_queries_map)
+    queries_profiles = get_queries_profiles(queries_map)
+
+    TOP_VALUES_TO_KEEP = 1
+    # looping through all the profile and do pearson correlation, creating a matrix of the results
+    utility_matrix_computed = np.zeros((len(users_profiles), len(queries_profiles)))
+
     for i in range(len(users_profiles)):
-        max = 0
-        for j in range(len(users_profiles[i])):
-            if users_profiles[i][j] > max:
-                max = users_profiles[i][j]
-        if max == 0:
-            max = 1
-        for j in range(len(users_profiles[i])):
-            users_profiles[i][j] = users_profiles[i][j] / max
+        for j in range(len(queries_profiles)):
 
-    # normalize the queries profiles in the range 0-1
-    for i in range(len(queries_profiles)):
-        max = 0
-        for j in range(len(queries_profiles[i])):
-            if queries_profiles[i][j] > max:
-                max = queries_profiles[i][j]
-        if max == 0:
-            max = 1
-        for j in range(len(queries_profiles[i])):
-            queries_profiles[i][j] = queries_profiles[i][j] / max
-
-    print('User 0 profile after normalization: ', users_profiles[0])
-    print('Query 0 profile after normalization: ', queries_profiles[0])
-    print('Query 12 profile after normalization: ', queries_profiles[12])
+            dynamic_user_map = users_queries_map[i].copy()
+            for key in dynamic_user_map:
+                dynamic_user_map[key] = sorted(dynamic_user_map[key], key=lambda x: x[1], reverse=True)[:TOP_VALUES_TO_KEEP]
 
 
+                # Option 1: impute mean of the values of that key, for missing values
+                sum = 0
+                for k in range(len(dynamic_user_map[key])):
+                    sum += dynamic_user_map[key][k][1]
+                key_mean = sum / len(dynamic_user_map[key])
 
 
-    similarities = cosine_similarity(users_profiles, queries_profiles)
-    print('Similarity between user 0 and query 0: ', similarities[0][0])
-    print('Similarity between user 0 and query 12: ', similarities[0][12])
-    #print('Similarities: \n', similarities)
+                # using the query map positions, check if the dynamic user map has that value for that key
+                for p in queries_map_positions[j]:
+                    if p[0] == key:
+                        if p[1] not in [x[0] for x in dynamic_user_map[key]]:
 
-    # print the top 10 similarities of all the users
-    #for i in range(len(similarities[:10])):
-    #    print('Top 10 similarities for user', i)
-    #    print(sorted(similarities[i], reverse=True)[:20])
+                            # get the value of p[0] in users_queries_map[i]
+                            for k in range(len(users_queries_map[i][key])):
+                                if users_queries_map[i][key][k][0] == p[1]:
+                                    real_value = users_queries_map[i][key][k][1]
+                                    break
+
+                            # Option 1: impute mean of the values of that key, for missing values
+                            dynamic_user_map[key].append((p[1], key_mean))
+
+                            # Option 2: impute the real value
+                            #dynamic_user_map[key].append((p[1], real_value))
+
+            # sort alphabetically the values
+            for key in dynamic_user_map:
+                dynamic_user_map[key] = sorted(dynamic_user_map[key], key=lambda x: x[0])
+
+            # get all the 2nd elements of the list of tuples queries_map_positions[j]
+            values = [x[1] for x in queries_map_positions[j]]
+            #print('Values: ', values)
+
+            # create dynamic query map with the same values of dynamic user map
+            dynamic_query_map = {}
+            for key in dynamic_user_map:
+                dynamic_query_map[key] = []
+                for k in range(len(dynamic_user_map[key])):
+                    if dynamic_user_map[key][k][0] in values:
+                        dynamic_query_map[key].append((dynamic_user_map[key][k][0], 100.0))
+                    else:
+                        dynamic_query_map[key].append((dynamic_user_map[key][k][0], 0.0))
+
+
+            # sort alphabetically the values
+            for key in dynamic_query_map:
+                dynamic_query_map[key] = sorted(dynamic_query_map[key], key=lambda x: x[0])
+
+
+            print('User ' + str(i) + ' map, for query' + str(j), dynamic_user_map)
+            print('Query ' + str(j) + ' map, for user' + str(i), dynamic_query_map)
+
+            dynamic_user_profile = get_users_profiles([dynamic_user_map])[0]
+            dynamic_query_profile = get_queries_profiles([dynamic_query_map])[0]
+
+            print('User ' + str(i) + ' profile, for query' + str(j), dynamic_user_profile)
+            print('Query ' + str(j) + ' profile, for user' + str(i), dynamic_query_profile)
+
+            #rating = pearsonr(dynamic_user_profile, dynamic_query_profile)[0] * 100
+            rating = cosine_similarity([dynamic_user_profile], [dynamic_query_profile])[0][0] * 100
+
+            if rating < 0:
+                rating = 0
+            elif rating > 100:
+                rating = 100
+
+            #print('Rating (Pearson correlation) between user ' + str(i) + ' and query ' + str(j) + ': ', rating)
+            print('Rating (Cosine similarity) between user ' + str(i) + ' and query ' + str(j) + ': ', rating)
+
+            utility_matrix_computed[i][j] = rating
+
+
+
+    utility_matrix_complete = partial_utility_matrix.copy()
+    #print('Partial utility matrix before: ', utility_matrix_complete)
+    for row in range(utility_matrix_complete.shape[0]):
+        for col in range(utility_matrix_complete.shape[1]):
+            if np.isnan(partial_utility_matrix.iloc[row, col]):
+
+                # mean of the row of the partial utility matrix
+                row_mean = partial_utility_matrix.iloc[row, :].mean()
+                difference = abs(utility_matrix_computed[row, col] - row_mean)
+
+                if difference > 30:
+                    utility_matrix_computed[row, col] = utility_matrix_computed[row, col] * 0.3 + row_mean * 0.7
+                elif difference > 20:
+                    utility_matrix_computed[row, col] = utility_matrix_computed[row, col] * 0.4 + row_mean * 0.6
+                elif difference > 10:
+                    utility_matrix_computed[row, col] = utility_matrix_computed[row, col] * 0.5 + row_mean * 0.5
+
+                utility_matrix_complete.iloc[row][col] = utility_matrix_computed[row][col]
+
+
+    # PERFORMANCE EVALUATION
+    real_utility_matrix_complete = import_data('real_complete')
+
+    # print first 10 rows of the real utility matrix
+    #print('Real utility matrix: ', real_utility_matrix_complete[:10])
+
+    difference_utility_matrix = (utility_matrix_complete - real_utility_matrix_complete)
+    #print('Difference utility matrix: ', difference_utility_matrix[:10])
+
+    mae = calculate_mae(real_utility_matrix_complete, utility_matrix_complete)
+    print('MAE: ', mae)
+
+    rmse = calculate_rmse(real_utility_matrix_complete, utility_matrix_complete)
+    print('RMSE :', rmse)
+
+    mape = calculate_mape(real_utility_matrix_complete, utility_matrix_complete)
+    print('MAPE :', mape)
+
+    mre = calculate_mre(real_utility_matrix_complete, utility_matrix_complete)
+    print('MRE: ', mre)
+
+
 
 
 

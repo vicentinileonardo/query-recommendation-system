@@ -22,5 +22,15 @@ this will help to improve the diversity of the recommendations.
 The usefulness of clustering in item-item CF depends on the specific characteristics of the dataset and the problem you are trying to solve, 
 so it's worth to test the performance of the algorithm with and without clustering and see which one performs better.
 
-## Issue #03
-+ MRE is not working properly
+## content based
++ discrete values encoded (values is rating), continuous values as they are (values are the actual values, like the years or rating): similarities too high
++ discrete values encoded, continuous values encoded: similarities too lows, since the vectors are very long and so different: similarites are very low
++ dynamic profiles, best results
+
+## in general, for the report
+implementative choices were mainly driven by empirical results, using metrics like RMSE and MAE
+the choice to spend more time in the dataset creation strategy was useful since it allowed to make comparisons 
+
+## for the report, running various run with different datasets
+
+
