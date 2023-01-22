@@ -26,11 +26,30 @@ so it's worth to test the performance of the algorithm with and without clusteri
 + discrete values encoded (values is rating), continuous values as they are (values are the actual values, like the years or rating): similarities too high
 + discrete values encoded, continuous values encoded: similarities too lows, since the vectors are very long and so different: similarites are very low
 + dynamic profiles, best results
++ still, the perfomances were not as good as the ones of the collaborative filtering, 
++ the initial idea was to use it as a part of a hybrid system, but the results were not good enough to be used in a hybrid system
 
 ## in general, for the report
 implementative choices were mainly driven by empirical results, using metrics like RMSE and MAE
 the choice to spend more time in the dataset creation strategy was useful since it allowed to make comparisons 
+it allowed us think if the result made sense or not, and to understand if the results were good or not
+instead, using a random dataset, with ratings rand(0,100),  it would have been difficult to understand if the results were good or not
+there is coerence between users
+
+maybe test the final algorithm on a random dataset, and describe the difference between the outcomes
 
 ## for the report, running various run with different datasets
 
+the solution as generic as possible and it works with any dataset,
 
+
+# consider to use the basic item-item CF as a baseline for the hybrid system
+
+does the algorithm works well with many/few rows and many/few columns?
+does the algorithm works well with short/long queries?
+
+show that item-item CF beat user-user, show data
+
+novelty of the approach:
++ expansion of the query
++ maybe optimization of the weights with gradient descent

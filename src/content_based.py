@@ -394,7 +394,7 @@ if __name__ == '__main__':
 
     # looping through all the profile and do pearson correlation, creating a matrix of the results
     utility_matrix_computed = np.zeros((len(users_profiles), len(queries_profiles)))
-    utility_matrix_computed = compute_utility_matrix(users_profiles, queries_profiles, users_queries_map, queries_map_positions, TOP_VALUES_TO_KEEP=1)
+    utility_matrix_computed = compute_utility_matrix(users_profiles, queries_profiles, users_queries_map, queries_map_positions, TOP_VALUES_TO_KEEP=1, verbose=True)
 
     utility_matrix_complete = partial_utility_matrix.copy()
     utility_matrix_complete = fill_complete_utility_matrix(utility_matrix_complete, partial_utility_matrix, utility_matrix_computed)
