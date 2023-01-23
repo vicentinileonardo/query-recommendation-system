@@ -5,3 +5,17 @@ MAE: 20.171072
 RMSE: 28.11694578008074
 MAPE: 20.761685687870187
 MRE: 0.20761685687870188
+--------------
+Configuration: N
+Performance of the item-item collaborative filtering algorithm:
+MAE: 20.171072
+RMSE: 28.11694578008074
+MAPE: 20.761685687870187
+MRE: 0.20761685687870188
+--------------
+Configuration: N
+Performance of the item-item collaborative filtering algorithm:
+MAE: 15.06626
+RMSE: 28.174591603073857
+MAPE: 7.098878364999438
+MRE: 0.07098878364999438

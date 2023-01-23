@@ -25,7 +25,7 @@ so it's worth to test the performance of the algorithm with and without clusteri
 ## content based
 + discrete values encoded (values is rating), continuous values as they are (values are the actual values, like the years or rating): similarities too high
 + discrete values encoded, continuous values encoded: similarities too lows, since the vectors are very long and so different: similarites are very low
-+ dynamic profiles, best results
++ dynamic profiles, best results. dynamic feature selection 
 + still, the perfomances were not as good as the ones of the collaborative filtering, 
 + the initial idea was to use it as a part of a hybrid system, but the results were not good enough to be used in a hybrid system
 
@@ -43,7 +43,7 @@ maybe test the final algorithm on a random dataset, and describe the difference 
 the solution as generic as possible and it works with any dataset,
 
 
-# consider to use the basic item-item CF as a baseline for the hybrid system
+# consider to use the basic item-item CF or content-based as a baseline for the hybrid system
 
 does the algorithm works well with many/few rows and many/few columns?
 does the algorithm works well with short/long queries?
@@ -53,3 +53,4 @@ show that item-item CF beat user-user, show data
 novelty of the approach:
 + expansion of the query
 + maybe optimization of the weights with gradient descent
+

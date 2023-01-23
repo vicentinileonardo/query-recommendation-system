@@ -307,6 +307,10 @@ def compute_utility_matrix(users_profiles, queries_profiles, users_queries_map, 
                         dynamic_query_map[key].append((dynamic_user_map[key][k][0], 100.0))
                     else:
                         dynamic_query_map[key].append((dynamic_user_map[key][k][0], 0.0))
+                        # Alternative:
+                        # dynamic_query_map[key].append((dynamic_user_map[key][k][0], np.nan))
+
+
 
             # sort alphabetically the values
             for key in dynamic_query_map:
@@ -318,6 +322,12 @@ def compute_utility_matrix(users_profiles, queries_profiles, users_queries_map, 
 
             dynamic_user_profile = get_users_profiles([dynamic_user_map])[0]
             dynamic_query_profile = get_queries_profiles([dynamic_query_map])[0]
+
+            # Alternative: keep only the non-nan values of the query profile, save the indexes and drop the same indexes from the user profile an
+            # indexes_to_drop = [i for i, x in enumerate(dynamic_query_profile) if np.isnan(x)]
+            # dynamic_query_profile = [x for i, x in enumerate(dynamic_query_profile) if i not in indexes_to_drop]
+            # dynamic_user_profile = [x for i, x in enumerate(dynamic_user_profile) if i not in indexes_to_drop]
+
 
             if verbose:
                 print('User ' + str(i) + ' profile, for query' + str(j), dynamic_user_profile)
