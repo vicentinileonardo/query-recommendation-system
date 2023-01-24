@@ -308,7 +308,7 @@ def preprocess_data(utility_matrix, n_items=100, n_users=100):
 
     return utility_matrix_before_pp, partial_utility_matrix, centered_matrix
 
-def calculate_rating(utility_matrix, centered_matrix, counter, user=4, item=0, top_n=2, verbose=False):
+def calculate_rating(utility_matrix, centered_matrix, similarities, counter, user=4, item=0, top_n=2, verbose=False):
 
     # selecting the column related to the similarities of the specific item against the others
     similarities = similarities[item, :]

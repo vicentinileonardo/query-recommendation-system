@@ -8,16 +8,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import time
 import math
+import os
 
 # set pandas to print the entire dataframe when printing
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+DIR = os.path.dirname(__file__)
+
 def import_data(matrix_type="partial"):
     if matrix_type == "partial":
-        path = '../data/_utility_matrix.csv'
+        path = os.path.join(DIR, '../data/_utility_matrix.csv')
     elif matrix_type == "real_complete":
-        path = '../data/_utility_matrix_complete.csv'
+        path = os.path.join(DIR, '../data/_utility_matrix_complete.csv')
     else:
         print('Wrong matrix type!')
         return
@@ -111,7 +114,7 @@ def preprocess_data(utility_matrix, n_queries=100, n_users=100):
 
     return utility_matrix_before_pp, partial_utility_matrix, centered_matrix
 
-def calculate_rating(utility_matrix, centered_matrix, counter, user=4, query=0, top_n=2, verbose=False):
+def calculate_rating(utility_matrix, centered_matrix, similarities, counter, user=4, query=0, top_n=2, verbose=False):
 
     # selecting the column related to the similarities of the specific query against the others
     similarities = similarities[query, :]
@@ -183,7 +186,7 @@ def collaborative_filtering(utility_matrix, centered_matrix, top_n=2, verbose=Fa
             if np.isnan(utility_matrix.iloc[row, col]):
                 if verbose:
                     print('Row:', row, 'Col:', col)
-                rating, counter_exception = calculate_rating(utility_matrix, centered_matrix, similarities,counter, user=col, item=row, top_n=top_n, verbose=verbose)
+                rating, counter_exception = calculate_rating(utility_matrix, centered_matrix, similarities,counter, user=col, query=row, top_n=top_n, verbose=verbose)
                 complete_utility_matrix.iloc[row, col] = rating
                 # append the rating also to a list
                 ratings_list.append(rating)
@@ -227,7 +230,7 @@ def calculate_mre(real_utility_matrix_complete, utility_matrix_complete, epsilon
     return (np.fabs(actual - predicted)/(actual + epsilon))[mask].mean()
 
 def print_data_to_html(utility_matrix_before_pp, partial_utility_matrix, centered_matrix, utility_matrix_complete, difference_utility_matrix):
-    with open('../data/item_item_cf/viz.html', 'w') as f:
+    with open(os.path.join(DIR, '../data/item_item_cf/viz'), 'w') as f:
         f.write("<html><head><title>Visualization</title></head><body>")
         f.write("<h1>Utility Matrix Before Preprocessing</h1>")
         f.write(utility_matrix_before_pp.to_html())
@@ -253,7 +256,7 @@ def plot_heatmap(utility_matrix, title, annot=True, n_rows=100, n_columns=100):
     plt.yticks(fontsize=12)
 
     # save the plot
-    plt.savefig('../data/item_item_cf/heatmap.png')
+    plt.savefig(os.path.join(DIR, '../data/item_item_cf/heatmap.png'))
     plt.show()
 
 def get_top_k_queries(partial_utility_matrix, utility_matrix_complete, user=0, top_k=10):
@@ -276,6 +279,7 @@ def get_top_k_queries(partial_utility_matrix, utility_matrix_complete, user=0, t
 
 def save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=10, n_users=10):
     path = '../data/item_item_cf/top_' + str(top_k) + '_queries_n_' + str(n_users) + '_users.txt'
+    path = os.path.join(DIR, path)
 
     with open(path, 'w') as f:
         for user in range(n_users):
@@ -291,7 +295,7 @@ def log_to_txt(path, text):
 if __name__ == '__main__':
 
     N_QUERIES = 100
-    N_USERS = 1800
+    N_USERS = 2500
     TOP_N = 2
     TOP_K_QUERIES = 10
     N_USERS_TOP_K_QUERIES = 10
@@ -327,32 +331,32 @@ if __name__ == '__main__':
     real_utility_matrix_complete = prepare_matrix(real_utility_matrix_complete, n_queries=N_QUERIES, n_users=N_USERS)
 
     print('--------------')
-    log_to_txt('../data/item_item_cf/performance.txt', '--------------\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), '--------------\n')
     print('Configuration: N_QUERIES =', N_QUERIES, ', N_USERS =', N_USERS)
-    log_to_txt('../data/item_item_cf/performance.txt', 'Configuration: N_QUERIES = ' + str(N_QUERIES) + ', N_USERS = ' + str(N_USERS) + '\n')
-    log_to_txt('../data/item_item_cf/performance.txt', 'Time taken: ' + str(time_cf) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'Configuration: N_QUERIES = ' + str(N_QUERIES) + ', N_USERS = ' + str(N_USERS) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'Time taken: ' + str(time_cf) + '\n')
 
     # calculate and printing the performances
     print('\033[1m' + 'Performance of the item-item collaborative filtering algorithm:' + '\033[0m')
-    log_to_txt('../data/item_item_cf/performance.txt', 'Performance of the item-item collaborative filtering algorithm:\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'Performance of the item-item collaborative filtering algorithm:\n')
 
     # mean absolute error: might be helped by the correct prediction of the 0s
     mae = calculate_mae(real_utility_matrix_complete, utility_matrix_complete)
     print('MAE: ', mae)
-    log_to_txt('../data/item_item_cf/performance.txt', 'MAE: ' + str(mae) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'MAE: ' + str(mae) + '\n')
 
     # RMSE is sensitive to outliers, since the square operation magnifies larger errors.
     rmse = calculate_rmse(real_utility_matrix_complete, utility_matrix_complete)
     print('RMSE :', rmse)
-    log_to_txt('../data/item_item_cf/performance.txt', 'RMSE: ' + str(rmse) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'RMSE: ' + str(rmse) + '\n')
 
     mape = calculate_mape(real_utility_matrix_complete, utility_matrix_complete)
     print('MAPE :', mape)
-    log_to_txt('../data/item_item_cf/performance.txt', 'MAPE: ' + str(mape) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'MAPE: ' + str(mape) + '\n')
 
     mre = calculate_mre(real_utility_matrix_complete, utility_matrix_complete)
     print('MRE: ', mre)
-    log_to_txt('../data/item_item_cf/performance.txt', 'MRE: ' + str(mre) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'MRE: ' + str(mre) + '\n')
 
     # save the top k queries
     save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=TOP_K_QUERIES, n_users=N_USERS_TOP_K_QUERIES)

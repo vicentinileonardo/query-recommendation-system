@@ -88,7 +88,7 @@ def preprocess_data(utility_matrix, n_queries=100, n_users=100):
 
     return utility_matrix_before_pp, partial_utility_matrix, centered_matrix
 
-def calculate_rating(utility_matrix, centered_matrix, counter, user=4, query=0, top_n=2, verbose=False):
+def calculate_rating(utility_matrix, centered_matrix, similarities, counter, user=4, query=0, top_n=2, verbose=False):
 
     # selecting the column related to the similarities of the specific query against the others
     similarities = similarities[user, :]
@@ -160,7 +160,7 @@ def collaborative_filtering(utility_matrix, centered_matrix, top_n=2, verbose=Fa
             if np.isnan(utility_matrix.iloc[row, col]):
                 if verbose:
                     print('Row:', row, 'Col:', col)
-                rating, counter_exception = calculate_rating(utility_matrix, centered_matrix, similarities,counter, user=col, item=row, top_n=top_n, verbose=verbose)
+                rating, counter_exception = calculate_rating(utility_matrix, centered_matrix, similarities,counter, query=col, user=row, top_n=top_n, verbose=verbose)
                 complete_utility_matrix.iloc[row, col] = rating
                 # append the rating also to a list
                 ratings_list.append(rating)
