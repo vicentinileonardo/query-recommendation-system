@@ -46,9 +46,6 @@ def calculate_mre(real_utility_matrix_complete, utility_matrix_complete, epsilon
 
 def hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THRESHOLD_2 = 200, WEIGHT_1 = 0.7, WEIGHT_2 = 0.5, WEIGHT_3 = 0.3):
 
-
-
-
     real_complete_utility_matrix = import_data(matrix_type="real_complete")
 
     path_1 = os.path.join(DIR, '../data/item_item_cf/complete_utility_matrix.csv')
@@ -85,7 +82,8 @@ def hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THRESH
             item_item_CF_weight = WEIGHT_3
             movies_item_item_CF_weight = 1 - WEIGHT_3
         for user in users:
-            hybrid_utility_matrix.loc[user,query] = item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query]
+            hybrid_utility_matrix.loc[user,query] = round(item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query])
+            #print(hybrid_utility_matrix.loc[user,query])
 
     hybrid_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
     hybrid_utility_matrix.to_csv(hybrid_path)
@@ -109,7 +107,6 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
 
     queries=real_complete_utility_matrix.head(N_QUERIES).columns.values
     users=real_complete_utility_matrix.head(N_USERS).index.values
-
 
     results_in_query={}
 
@@ -139,14 +136,25 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
             item_item_CF_weight = WEIGHT_3
             movies_item_item_CF_weight = 1 - WEIGHT_3
         for user in users:
-            hybrid_utility_matrix.loc[user,query] = item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query]
+            hybrid_utility_matrix.loc[user,query] = round(item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query])
 
+    print(hybrid_utility_matrix.shape)
+    print(hybrid_utility_matrix.head())
+    print(real_complete_utility_matrix.shape)
+    print(real_complete_utility_matrix.head())
+
+    '''
     mae = calculate_mae(real_complete_utility_matrix, hybrid_utility_matrix)
     rmse = calculate_rmse(real_complete_utility_matrix, hybrid_utility_matrix)
     #mape = calculate_mape(real_complete_utility_matrix, hybrid_utility_matrix)
     mre = calculate_mre(real_complete_utility_matrix, hybrid_utility_matrix)
 
     loss = mae + rmse + mre
+    '''
+
+    real_complete_utility_matrix_tensor = torch.tensor(real_complete_utility_matrix.values.astype(float), dtype=torch.float)
+    hybrid_utility_matrix_tensor = torch.tensor(hybrid_utility_matrix.values.astype(float), dtype=torch.float)
+    error = torch.mean((real_complete_utility_matrix_tensor - hybrid_utility_matrix_tensor) ** 2)
 
     # Define the optimizer
     optimizer = torch.optim.Adam([THRESHOLD_1_tensor, THRESHOLD_2_tensor, WEIGHT_1_tensor, WEIGHT_2_tensor, WEIGHT_3_tensor], lr=0.01)
@@ -154,14 +162,15 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
     # Train the model
     for epoch in range(1000):
         optimizer.zero_grad()
-        loss.backward()
+        #loss.backward()
+        error.backward()
         optimizer.step()
         if epoch % 100 == 0:
-            print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 1000, loss.item()))
+            print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 1000, error.item()))
             print('THRESHOLD_1: {:.4f}, THRESHOLD_2: {:.4f}, WEIGHT_1: {:.4f}, WEIGHT_2: {:.4f}, WEIGHT_3: {:.4f}'.format(THRESHOLD_1_tensor.item(), THRESHOLD_2_tensor.item(), WEIGHT_1_tensor.item(), WEIGHT_2_tensor.item(), WEIGHT_3_tensor.item()))
             print()
 
-    print('Final Loss: {:.4f}'.format(loss.item()))
+    print('Final Loss: {:.4f}'.format(error.item()))
 
     print('Final THRESHOLD_1: {:.4f}, Final THRESHOLD_2: {:.4f}, Final WEIGHT_1: {:.4f}, Final WEIGHT_2: {:.4f}, Final WEIGHT_3: {:.4f}'.format(THRESHOLD_1_tensor.item(), THRESHOLD_2_tensor.item(), WEIGHT_1_tensor.item(), WEIGHT_2_tensor.item(), WEIGHT_3_tensor.item()))
 
@@ -171,6 +180,8 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
     WEIGHT_1 = WEIGHT_1_tensor.item()
     WEIGHT_2 = WEIGHT_2_tensor.item()
     WEIGHT_3 = WEIGHT_3_tensor.item()
+
+    print(THRESHOLD_1)
 
     hybrid_utility_matrix = pd.DataFrame(index=users, columns=queries)
 
@@ -185,7 +196,7 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
             item_item_CF_weight = WEIGHT_3
             movies_item_item_CF_weight = 1 - WEIGHT_3
         for user in users:
-            hybrid_utility_matrix.loc[user,query] = item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query]
+            hybrid_utility_matrix.loc[user,query] = round(item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query])
 
     # save the hybrid utility matrix
 
@@ -195,10 +206,6 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
 
 
     #return hybrid_utility_matrix
-
-
-
-
 
 
 
@@ -237,8 +244,8 @@ if __name__ == '__main__':
     WEIGHT_2 = 0.5
     WEIGHT_3 = 0.3
 
-    #hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
-    hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
+    hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
+    #hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
 
     hybrid_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
     utility_matrix_complete = pd.read_csv(hybrid_path, index_col=0)
