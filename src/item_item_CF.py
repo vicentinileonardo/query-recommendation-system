@@ -82,6 +82,8 @@ def preprocess_data(utility_matrix, n_queries=100, n_users=100):
     # option 2: fill na cells with the mean of their row (query)
     centered_matrix = centered_matrix.apply(lambda row: row.fillna(row.mean()), axis=1)
 
+    centered_matrix = centered_matrix.fillna(0)
+
     partial_utility_matrix = utility_matrix.copy()
 
     ### CLUSTERING STEP ###
@@ -110,8 +112,6 @@ def preprocess_data(utility_matrix, n_queries=100, n_users=100):
     return utility_matrix_before_pp, partial_utility_matrix, centered_matrix
 
 def calculate_rating(utility_matrix, centered_matrix, counter, user=4, query=0, top_n=2, verbose=False):
-    # cosine similarity between rows
-    similarities = cosine_similarity(centered_matrix, centered_matrix)
 
     # selecting the column related to the similarities of the specific query against the others
     similarities = similarities[query, :]
@@ -154,6 +154,10 @@ def calculate_rating(utility_matrix, centered_matrix, counter, user=4, query=0, 
     else:  # normal behaviour
         rating /= similarities[top_n_similarities].sum()
         counter["c_normal"] += 1
+
+    if math.isnan(rating):
+        rating=0
+
     rating = round(rating)
 
     if rating > 100:
@@ -171,12 +175,15 @@ def collaborative_filtering(utility_matrix, centered_matrix, top_n=2, verbose=Fa
     ratings_list = []
     counter = {"c_exception": 0, "c_normal": 0}
 
+    # cosine similarity between rows
+    similarities = cosine_similarity(centered_matrix, centered_matrix)
+
     for row in range(utility_matrix.shape[0]):
         for col in range(utility_matrix.shape[1]):
             if np.isnan(utility_matrix.iloc[row, col]):
                 if verbose:
                     print('Row:', row, 'Col:', col)
-                rating, counter_exception = calculate_rating(utility_matrix, centered_matrix, counter, user=col, query=row, top_n=top_n, verbose=verbose)
+                rating, counter_exception = calculate_rating(utility_matrix, centered_matrix, similarities,counter, user=col, item=row, top_n=top_n, verbose=verbose)
                 complete_utility_matrix.iloc[row, col] = rating
                 # append the rating also to a list
                 ratings_list.append(rating)
