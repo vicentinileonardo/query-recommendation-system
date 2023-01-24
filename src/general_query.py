@@ -1,9 +1,17 @@
+### Code related to the part B of the project, i.e. general query ###
+
 import csv
+
+# ricreare la matrice di utility completa movies_item_item_cf partendo da hybrid complete
+
+# trovare quali item soddisfano una query
+
+# per ogni utente prendere le valutazioni di quegli item (matrice completa, abbiamo tutto) e fare la media
 
 
 if __name__ == "__main__":
 
-    ### Code related to the part B of the project, i.e. general query ###
+
 
     dataset_path = "../data/_queries.csv"
 
