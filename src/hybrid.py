@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import math
+import torch
 
 
 DIR = os.path.dirname(__file__)
@@ -93,6 +94,112 @@ def hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THRESH
 
     #return hybrid_utility_matrix
 
+def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THRESHOLD_2 = 200, WEIGHT_1 = 0.7, WEIGHT_2 = 0.5, WEIGHT_3 = 0.3):
+
+    real_complete_utility_matrix = import_data(matrix_type="real_complete")
+
+    path_1 = os.path.join(DIR, '../data/item_item_cf/complete_utility_matrix.csv')
+    path_2 = os.path.join(DIR, '../data/movies_item_item_cf/complete_utility_matrix.csv')
+    item_item_CF_utility_matrix = pd.read_csv(path_1, index_col=0)
+    movies_item_item_CF_utilty_matrix = pd.read_csv(path_2, index_col=0)
+
+    path_preprocessed_queries = os.path.join(DIR, '../data/movies_item_item_cf/preprocessed_queries.csv')
+    preprocessed_queries_df = pd.read_csv(path_preprocessed_queries, index_col=0)
+
+
+    queries=real_complete_utility_matrix.head(N_QUERIES).columns.values
+    users=real_complete_utility_matrix.head(N_USERS).index.values
+
+
+    results_in_query={}
+
+    for query in queries:
+        try:
+            results_in_query[query]=int(preprocessed_queries_df.loc[query].value_counts())
+        except:
+            results_in_query[query]=0
+
+    # Define the weight variables and the loss function
+    THRESHOLD_1_tensor = torch.tensor([THRESHOLD_1], requires_grad=True)
+    THRESHOLD_2_tensor = torch.tensor([THRESHOLD_2], requires_grad=True)
+    WEIGHT_1_tensor = torch.tensor([WEIGHT_1], requires_grad=True)
+    WEIGHT_2_tensor = torch.tensor([WEIGHT_2], requires_grad=True)
+    WEIGHT_3_tensor = torch.tensor([WEIGHT_3], requires_grad=True)
+
+    hybrid_utility_matrix = pd.DataFrame(index=users, columns=queries)
+
+    for query in queries:
+        if results_in_query[query] > THRESHOLD_2:
+            item_item_CF_weight = WEIGHT_1
+            movies_item_item_CF_weight = 1 - WEIGHT_1
+        elif results_in_query[query] < THRESHOLD_2 and results_in_query[query] > THRESHOLD_1:
+            item_item_CF_weight = WEIGHT_2
+            movies_item_item_CF_weight = 1 - WEIGHT_2
+        else:
+            item_item_CF_weight = WEIGHT_3
+            movies_item_item_CF_weight = 1 - WEIGHT_3
+        for user in users:
+            hybrid_utility_matrix.loc[user,query] = item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query]
+
+    mae = calculate_mae(real_complete_utility_matrix, hybrid_utility_matrix)
+    rmse = calculate_rmse(real_complete_utility_matrix, hybrid_utility_matrix)
+    #mape = calculate_mape(real_complete_utility_matrix, hybrid_utility_matrix)
+    mre = calculate_mre(real_complete_utility_matrix, hybrid_utility_matrix)
+
+    loss = mae + rmse + mre
+
+    # Define the optimizer
+    optimizer = torch.optim.Adam([THRESHOLD_1_tensor, THRESHOLD_2_tensor, WEIGHT_1_tensor, WEIGHT_2_tensor, WEIGHT_3_tensor], lr=0.01)
+
+    # Train the model
+    for epoch in range(1000):
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        if epoch % 100 == 0:
+            print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 1000, loss.item()))
+            print('THRESHOLD_1: {:.4f}, THRESHOLD_2: {:.4f}, WEIGHT_1: {:.4f}, WEIGHT_2: {:.4f}, WEIGHT_3: {:.4f}'.format(THRESHOLD_1_tensor.item(), THRESHOLD_2_tensor.item(), WEIGHT_1_tensor.item(), WEIGHT_2_tensor.item(), WEIGHT_3_tensor.item()))
+            print()
+
+    print('Final Loss: {:.4f}'.format(loss.item()))
+
+    print('Final THRESHOLD_1: {:.4f}, Final THRESHOLD_2: {:.4f}, Final WEIGHT_1: {:.4f}, Final WEIGHT_2: {:.4f}, Final WEIGHT_3: {:.4f}'.format(THRESHOLD_1_tensor.item(), THRESHOLD_2_tensor.item(), WEIGHT_1_tensor.item(), WEIGHT_2_tensor.item(), WEIGHT_3_tensor.item()))
+
+    # use the optimized parameters to create the hybrid utility matrix
+    THRESHOLD_1 = THRESHOLD_1_tensor.item()
+    THRESHOLD_2 = THRESHOLD_2_tensor.item()
+    WEIGHT_1 = WEIGHT_1_tensor.item()
+    WEIGHT_2 = WEIGHT_2_tensor.item()
+    WEIGHT_3 = WEIGHT_3_tensor.item()
+
+    hybrid_utility_matrix = pd.DataFrame(index=users, columns=queries)
+
+    for query in queries:
+        if results_in_query[query] > THRESHOLD_2:
+            item_item_CF_weight = WEIGHT_1
+            movies_item_item_CF_weight = 1 - WEIGHT_1
+        elif results_in_query[query] < THRESHOLD_2 and results_in_query[query] > THRESHOLD_1:
+            item_item_CF_weight = WEIGHT_2
+            movies_item_item_CF_weight = 1 - WEIGHT_2
+        else:
+            item_item_CF_weight = WEIGHT_3
+            movies_item_item_CF_weight = 1 - WEIGHT_3
+        for user in users:
+            hybrid_utility_matrix.loc[user,query] = item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query]
+
+    # save the hybrid utility matrix
+
+    hybrid_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
+    hybrid_utility_matrix.to_csv(hybrid_path)
+
+
+
+    #return hybrid_utility_matrix
+
+
+
+
+
 
 
 '''
@@ -124,13 +231,14 @@ if __name__ == '__main__':
     N_USERS = 2500
     N_ITEMS = 7669
 
-    THRESHOLD_1 = 200
-    THRESHOLD_2 = 1000
+    THRESHOLD_1 = 200.0
+    THRESHOLD_2 = 1000.0
     WEIGHT_1 = 0.7
     WEIGHT_2 = 0.5
     WEIGHT_3 = 0.3
 
-    hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
+    #hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
+    hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
 
     hybrid_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
     utility_matrix_complete = pd.read_csv(hybrid_path, index_col=0)
@@ -165,9 +273,9 @@ if __name__ == '__main__':
     print('MRE: ', mre)
     log_to_txt(PERFORMANCE_PATH, 'MRE: ' + str(mre) + '\n')
 
-    # trovare parametri migliori
 
-    #
+
+
 
 
 
