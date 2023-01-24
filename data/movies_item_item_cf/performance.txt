@@ -1,0 +1,8 @@
+
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 2500
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.763088
+RMSE: 5.177935495928855
+MAPE: 5.993968672468715
+MRE: 0.05993968672468715
