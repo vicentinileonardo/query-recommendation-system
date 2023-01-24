@@ -1,5 +1,8 @@
 from item_item_CF import get_top_k_queries, save_top_k_queries
 
+
+
+
 def hybrid_recommender(item_item_CF_utility_matrix, movies_item_item_CF_utilty_matrix):
 
     THRESHOLD = 10
@@ -7,7 +10,7 @@ def hybrid_recommender(item_item_CF_utility_matrix, movies_item_item_CF_utilty_m
     item_item_CF_base_weight = 0.5
     movies_item_item_CF_base_weight = 0.5
 
-    query_results_length = 10
+    query_results_length = 10 # how to calculate this?
 
 
     if query_results_length < THRESHOLD:
