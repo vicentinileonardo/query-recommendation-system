@@ -294,3 +294,19 @@ MAE: 3.2323288888888886
 RMSE: 5.887494090584437
 MAPE: 6.885012133765775
 MRE: 0.06885012133765775
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2500
+Time taken: 29.81625771522522
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.142092
+RMSE: 5.789066591429054
+MAPE: 6.821889659664748
+MRE: 0.06821889659664748
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2500
+Time taken: 29.8674156665802
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.142092
+RMSE: 5.789066591429054
+MAPE: 6.821889659664748
+MRE: 0.06821889659664748

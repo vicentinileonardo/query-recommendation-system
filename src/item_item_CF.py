@@ -319,6 +319,9 @@ if __name__ == '__main__':
     time_cf = end_time_cf - start_time_cf
     print('Time taken to fill the matrix with CF:', end_time_cf - start_time_cf)
 
+    path= os.path.join(DIR, '../data/item_item_cf/complete_utility_matrix.csv')
+    utility_matrix_complete.T.to_csv(path)
+
     difference_utility_matrix = compute_difference(utility_matrix_complete, n_queries=N_QUERIES, n_users=N_USERS)
 
     # print the data to html, for testing purposes
