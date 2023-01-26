@@ -31,21 +31,21 @@ def plot_charts(path):
 
     # plot the chart of mae vs n_queries and n_users
     #plt.plot(n_queries, mae, label='MAE')
-    plt.plot(n_users, mae, label='MAE')
-    plt.plot(n_users, rmse, label='RMSE')
-    plt.plot(n_users, mape, label='MAPE')
+    plt.plot(n_queries, mae, label='MAE')
+    plt.plot(n_queries, rmse, label='RMSE')
+    plt.plot(n_queries, mape, label='MAPE')
     # add light grey hlines for every unit
     for i in range(1, 9):
         plt.axhline(y=i, color='lightgrey', linestyle='-')
 
-    plt.xlabel('n_users')
+    plt.xlabel('n_queries')
     plt.ylabel('Values')
     # bold title
-    plt.title('Compact Item-Item Collaborative Filtering' + '\nPerformance metrics vs n_users')
+    plt.title('Compact Item-Item Collaborative Filtering' + '\nPerformance metrics vs n_queries')
 
 
 
-    plt.figtext(0.90, 0.025, 'n_queries = 100 (fixed)', wrap=True, horizontalalignment='center', fontsize=10)
+    plt.figtext(0.90, 0.025, 'n_users = 2500 (fixed)', wrap=True, horizontalalignment='center', fontsize=10)
 
     #expand the plot
     plt.subplots_adjust(bottom=0.15)
@@ -54,7 +54,7 @@ def plot_charts(path):
     # float values on the y axis, with 1 decimal
     plt.yticks(np.arange(0, 10, step=1), ['{:.1f}'.format(x) for x in np.arange(0, 10, step=1)])
     #plt.yticks(np.arange(0.0, 10.0, 1.0))
-    plt.xticks(np.arange(0, 2501, 250))
+    plt.xticks(np.arange(0, 101, 10))
 
 
     # set dpi
@@ -64,11 +64,11 @@ def plot_charts(path):
     plt.legend()
 
     # save the chart
-    plt.savefig('../data/item_item_cf/chart.png')
+    plt.savefig('../data/item_item_cf/compact_item_item_queries.png')
 
     plt.show()
 
 
 
 if __name__ == "__main__":
-    plot_charts('../data/item_item_cf/performance_users.txt')
+    plot_charts('../data/item_item_cf/performance_queries.txt')

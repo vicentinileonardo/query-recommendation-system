@@ -230,7 +230,7 @@ def calculate_mre(real_utility_matrix_complete, utility_matrix_complete, epsilon
     return (np.fabs(actual - predicted)/(actual + epsilon))[mask].mean()
 
 def print_data_to_html(utility_matrix_before_pp, partial_utility_matrix, centered_matrix, utility_matrix_complete, difference_utility_matrix):
-    with open(os.path.join(DIR, '../data/item_item_cf/viz'), 'w') as f:
+    with open(os.path.join(DIR, '../data/item_item_cf/viz.html'), 'w') as f:
         f.write("<html><head><title>Visualization</title></head><body>")
         f.write("<h1>Utility Matrix Before Preprocessing</h1>")
         f.write(utility_matrix_before_pp.to_html())
