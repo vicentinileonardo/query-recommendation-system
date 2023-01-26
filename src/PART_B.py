@@ -165,6 +165,13 @@ def compute_new_utility_matrix(queries,support_utility_matrix, new_preprocess_qu
 
     return ratings_prediction   
 
+def write_txt(queries):
+    with open(os.path.join(DIR, '../data/PART_B/queries.txt'), 'w') as f:
+        counter=0
+        for query in queries:
+            f.write("b"+str(counter)+", "+str(query)+"\n")
+            counter+=1
+
 if __name__ == "__main__":
     part_b_matrix_path = os.path.join(DIR, '../data/PART_B/support_utility_matrix.csv')
     complete_utility_matrix_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
@@ -241,6 +248,9 @@ if __name__ == "__main__":
             print('Invalid modality')
             exit
     
+    
+    write_txt(queries)
+
     relational_data=pd.read_csv(relational_data_path, index_col=0)
     preprocess_proposed_queries(queries,relational_data,header)
 
