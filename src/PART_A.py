@@ -23,7 +23,6 @@ def get_top_k_queries(partial_utility_matrix, computed_utility_matrix, user=0, t
     # sort the list of tuples by rating
     query_rating_list.sort(key=lambda x: x[1], reverse=True)
 
-    # return the top N queries
     return query_rating_list[:top_k]
 
 def save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=10, n_users=10):

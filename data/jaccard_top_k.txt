@@ -1,0 +1,71 @@
+TOP_K: 1
+Jaccard similarity compact: 0.3176
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 2
+Jaccard similarity compact: 0.26213333333333333
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 3
+Jaccard similarity compact: 0.2504
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 4
+Jaccard similarity compact: 0.2529638095238095
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 5
+Jaccard similarity compact: 0.26068412698412696
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 6
+Jaccard similarity compact: 0.2649574025974026
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 7
+Jaccard similarity compact: 0.269364087024087
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 8
+Jaccard similarity compact: 0.27324871572871573
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 9
+Jaccard similarity compact: 0.27692011635423397
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 1.0
+-----------------
+TOP_K: 10
+Jaccard similarity compact: 0.28216315452693164
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 0.8181818181818182
+-----------------
+TOP_K: 15
+Jaccard similarity compact: 0.3098481406996583
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity compact: 0.7647058823529411
+-----------------
+TOP_K: 20
+Jaccard similarity compact: 0.343602908428085
+Lowest jaccard similarity compact: 0.02564102564102564
+Highest jaccard similarity compact: 0.7391304347826086
+-----------------
+TOP_K: 25
+Jaccard similarity compact: 0.38569638576769255
+Lowest jaccard similarity compact: 0.1111111111111111
+Highest jaccard similarity compact: 0.7857142857142857
+-----------------
+TOP_K: 30
+Jaccard similarity compact: 0.43098659556297597
+Lowest jaccard similarity compact: 0.15384615384615385
+Highest jaccard similarity compact: 0.8181818181818182
+-----------------
+
