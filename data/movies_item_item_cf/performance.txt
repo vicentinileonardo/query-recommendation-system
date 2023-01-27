@@ -1,4 +1,52 @@
-
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 2
+Performance of the item-item collaborative filtering algorithm:
+MAE: 7.324999999999999
+RMSE: 16.274059112587736
+MAPE: 13.659156329033022
+MRE: 0.13659156329033023
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 5
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.94
+RMSE: 5.474303608679373
+MAPE: 5.999430405000679
+MRE: 0.05999430405000679
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 15
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.616
+RMSE: 4.888489882707474
+MAPE: 5.6474038361338605
+MRE: 0.0564740383613386
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 50
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.6342000000000003
+RMSE: 4.951827945314741
+MAPE: 5.749051872578906
+MRE: 0.05749051872578906
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 100
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.641
+RMSE: 4.910946955527009
+MAPE: 5.726987133674196
+MRE: 0.05726987133674196
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 200
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.6540500000000002
+RMSE: 4.944618286581887
+MAPE: 5.705727410605297
+MRE: 0.05705727410605297
+--------------
+Configuration: N_ITEMS = 7669, N_USERS = 1250
+Performance of the item-item collaborative filtering algorithm:
+MAE: 2.758728
+RMSE: 5.167288650733574
+MAPE: 5.98949058800026
+MRE: 0.059894905880002604
 --------------
 Configuration: N_ITEMS = 7669, N_USERS = 2500
 Performance of the item-item collaborative filtering algorithm:
