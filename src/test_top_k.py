@@ -67,28 +67,42 @@ def log_to_txt(path, text):
 
 if __name__ == "__main__":
 
-    TOP_K = 1
+
     N_USERS = 2500
+    TOP_K_VALUES = [1, 2, 3, 4, 5, 10, 15, 20, 30]
 
     #save_results(TOP_K, N_USERS)
+    df = pd.DataFrame(columns=['top_k', 'algorithm_type', 'jaccard_similarity_value'])
+    for TOP_K in TOP_K_VALUES:
 
-    # read the top k queries for each user for each csv file and store them lists of sets, each row is a set of queries
-    hybrid_path = os.path.join(DIR, '../data/hybrid/top_k_queries/top_' + str(TOP_K) + '_queries.csv')
-    hybrid_top_k_queries = pd.read_csv(hybrid_path, header=None).values.tolist()
-    hybrid_top_k_queries = [set(x) for x in hybrid_top_k_queries]
+        # read the top k queries for each user for each csv file and store them lists of sets, each row is a set of queries
+        hybrid_path = os.path.join(DIR, '../data/hybrid/top_k_queries/top_' + str(TOP_K) + '_queries.csv')
+        hybrid_top_k_queries = pd.read_csv(hybrid_path, header=None).values.tolist()
+        hybrid_top_k_queries = [set(x) for x in hybrid_top_k_queries]
 
-    compact_path = os.path.join(DIR, '../data/item_item_cf/top_k_queries/top_' + str(TOP_K) + '_queries.csv')
-    compact_top_k_queries = pd.read_csv(compact_path, header=None).values.tolist()
-    compact_top_k_queries = [set(x) for x in compact_top_k_queries]
+        compact_path = os.path.join(DIR, '../data/item_item_cf/top_k_queries/top_' + str(TOP_K) + '_queries.csv')
+        compact_top_k_queries = pd.read_csv(compact_path, header=None).values.tolist()
+        compact_top_k_queries = [set(x) for x in compact_top_k_queries]
 
-    real_path = os.path.join(DIR, '../data/top_k_queries/real_top_' + str(TOP_K) + '_queries.csv')
-    real_top_k_queries = pd.read_csv(real_path, header=None).values.tolist()
-    real_top_k_queries = [set(x) for x in real_top_k_queries]
+        real_path = os.path.join(DIR, '../data/top_k_queries/real_top_' + str(TOP_K) + '_queries.csv')
+        real_top_k_queries = pd.read_csv(real_path, header=None).values.tolist()
+        real_top_k_queries = [set(x) for x in real_top_k_queries]
 
-    # compute the jaccard similarity between the top k queries for each user
-    jaccard_similarity_hybrid = [compute_jaccard_similarity(hybrid_top_k_queries[i], real_top_k_queries[i]) for i in range(N_USERS)]
-    jaccard_similarity_compact = [compute_jaccard_similarity(compact_top_k_queries[i], real_top_k_queries[i]) for i in range(N_USERS)]
+        # compute the jaccard similarity between the top k queries for each user
+        jaccard_similarity_hybrid = [compute_jaccard_similarity(hybrid_top_k_queries[i], real_top_k_queries[i]) for i in range(N_USERS)]
+        jaccard_similarity_compact = [compute_jaccard_similarity(compact_top_k_queries[i], real_top_k_queries[i]) for i in range(N_USERS)]
 
+        for i in range(N_USERS):
+            df = df.append({'user': i, 'top_k': TOP_K, 'algorithm_type': 'compact', 'jaccard_similarity_value': jaccard_similarity_compact[i]}, ignore_index=True)
+            df = df.append({'user': i, 'top_k': TOP_K, 'algorithm_type': 'hybrid', 'jaccard_similarity_value': jaccard_similarity_hybrid[i]},ignore_index=True)
+
+
+    print(df.head())
+    # save the dataframe to a csv file
+    df.to_csv(os.path.join(DIR, '../data/df_jaccard_similarity.csv'), index=False)
+
+
+    '''
     LOG_PATH = os.path.join(DIR, '../data/jaccard_top_k.txt')
 
     print('TOP_K: ', TOP_K)
@@ -112,6 +126,22 @@ if __name__ == "__main__":
     #log_to_txt(LOG_PATH, 'Highest jaccard similarity hybrid: ' + str(np.max(jaccard_similarity_hybrid)) + '\n')
     log_to_txt(LOG_PATH, 'Highest jaccard similarity compact: ' + str(np.max(jaccard_similarity_compact)) + '\n')
     log_to_txt(LOG_PATH, '-----------------\n')
+    '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
