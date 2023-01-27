@@ -1,0 +1,70 @@
+--------------
+Configuration: N_QUERIES = 10, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 22.1904
+RMSE: 32.641949696671006
+MAPE: 25.78175829709826
+MRE: 0.2578175829709826
+--------------
+Configuration: N_QUERIES = 20, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 18.659779999999998
+RMSE: 27.62776900149558
+MAPE: 17.897752724456257
+MRE: 0.17897752724456256
+--------------
+Configuration: N_QUERIES = 30, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 17.44176
+RMSE: 26.284700239239303
+MAPE: 15.334283182802178
+MRE: 0.15334283182802178
+--------------
+Configuration: N_QUERIES = 40, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 17.34606
+RMSE: 25.605281095898945
+MAPE: 15.91064202439812
+MRE: 0.1591064202439812
+--------------
+Configuration: N_QUERIES = 50, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 16.02268
+RMSE: 24.63808223056332
+MAPE: 14.041898139319109
+MRE: 0.1404189813931911
+--------------
+Configuration: N_QUERIES = 60, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 14.98208
+RMSE: 23.807465775816347
+MAPE: 12.850418243185874
+MRE: 0.12850418243185874
+--------------
+Configuration: N_QUERIES = 70, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 15.6458
+RMSE: 23.823442356516946
+MAPE: 14.16213175805589
+MRE: 0.1416213175805589
+--------------
+Configuration: N_QUERIES = 80, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 14.913565
+RMSE: 23.160881999613053
+MAPE: 13.436645699530619
+MRE: 0.1343664569953062
+--------------
+Configuration: N_QUERIES = 90, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 14.549102222222222
+RMSE: 22.776610615082987
+MAPE: 13.060809997108464
+MRE: 0.13060809997108463
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2500
+Performance of the user-user collaborative filtering algorithm:
+MAE: 14.691192
+RMSE: 22.63578830083017
+MAPE: 13.517555942832871
+MRE: 0.1351755594283287

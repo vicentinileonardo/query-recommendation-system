@@ -35,13 +35,13 @@ def plot_charts(path):
     plt.plot(n_queries, rmse, label='RMSE')
     plt.plot(n_queries, mape, label='MAPE')
     # add light grey hlines for every unit
-    for i in range(1, 9):
+    for i in range(2, 36, 2):
         plt.axhline(y=i, color='lightgrey', linestyle='-')
 
     plt.xlabel('n_queries')
     plt.ylabel('Values')
     # bold title
-    plt.title('Compact Item-Item Collaborative Filtering' + '\nPerformance metrics vs n_queries')
+    plt.title('Compact User-User Collaborative Filtering' + '\nPerformance metrics vs n_queries')
 
 
 
@@ -52,7 +52,7 @@ def plot_charts(path):
 
     plt.ylim(bottom=0)
     # float values on the y axis, with 1 decimal
-    plt.yticks(np.arange(0, 10, step=1), ['{:.1f}'.format(x) for x in np.arange(0, 10, step=1)])
+    plt.yticks(np.arange(0, 36, step=2), ['{:.1f}'.format(x) for x in np.arange(0, 36, step=2)])
     #plt.yticks(np.arange(0.0, 10.0, 1.0))
     plt.xticks(np.arange(0, 101, 10))
 
@@ -64,11 +64,11 @@ def plot_charts(path):
     plt.legend()
 
     # save the chart
-    plt.savefig('../data/item_item_cf/compact_item_item_queries.png')
+    plt.savefig('../data/compact_user_user/compact_user_user_queries.png', dpi=300)
 
     plt.show()
 
 
 
 if __name__ == "__main__":
-    plot_charts('../data/item_item_cf/performance_queries.txt')
+    plot_charts('../data/compact_user_user/performance_queries.txt')

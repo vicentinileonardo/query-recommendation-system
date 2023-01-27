@@ -116,96 +116,79 @@ def hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THR
         except:
             results_in_query[query]=0
 
-    # Define the weight variables and the loss function
-    THRESHOLD_1_tensor = torch.tensor([THRESHOLD_1], requires_grad=True)
-    THRESHOLD_2_tensor = torch.tensor([THRESHOLD_2], requires_grad=True)
-    WEIGHT_1_tensor = torch.tensor([WEIGHT_1], requires_grad=True)
-    WEIGHT_2_tensor = torch.tensor([WEIGHT_2], requires_grad=True)
-    WEIGHT_3_tensor = torch.tensor([WEIGHT_3], requires_grad=True)
-
     hybrid_utility_matrix = pd.DataFrame(index=users, columns=queries)
 
-    for query in queries:
-        if results_in_query[query] > THRESHOLD_2:
-            item_item_CF_weight = WEIGHT_1
-            movies_item_item_CF_weight = 1 - WEIGHT_1
-        elif results_in_query[query] < THRESHOLD_2 and results_in_query[query] > THRESHOLD_1:
-            item_item_CF_weight = WEIGHT_2
-            movies_item_item_CF_weight = 1 - WEIGHT_2
-        else:
-            item_item_CF_weight = WEIGHT_3
-            movies_item_item_CF_weight = 1 - WEIGHT_3
-        for user in users:
-            hybrid_utility_matrix.loc[user,query] = round(item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query])
+    # brute force to find the best weights and thresholds
+    best_mae = 100
+    best_rmse = 100
+    #best_mape = 0
 
-    print(hybrid_utility_matrix.shape)
-    print(hybrid_utility_matrix.head())
-    print(real_complete_utility_matrix.shape)
-    print(real_complete_utility_matrix.head())
+    bf_PATH = os.path.join(DIR, '../data/hybrid/bf.txt')
+    bf_best_PATH = os.path.join(DIR, '../data/hybrid/bf_best.txt')
 
-    '''
-    mae = calculate_mae(real_complete_utility_matrix, hybrid_utility_matrix)
-    rmse = calculate_rmse(real_complete_utility_matrix, hybrid_utility_matrix)
-    #mape = calculate_mape(real_complete_utility_matrix, hybrid_utility_matrix)
-    mre = calculate_mre(real_complete_utility_matrix, hybrid_utility_matrix)
+    counter = 0
+    weight_2 = 0.5
+    for threshold_1 in range(1, 500, 100):
+        for threshold_2 in range(500, 2500, 250):
+            for weight_1 in np.arange(0.1, 1, 0.15):
+                #for weight_2 in np.arange(0.1, 1, 0.15):
+                for weight_3 in np.arange(1, 0.1, -0.15):
+                    for query in queries:
+                        if results_in_query[query] >= threshold_2:
+                            item_item_CF_weight = weight_1
+                            movies_item_item_CF_weight = 1 - weight_1
+                        elif results_in_query[query] < threshold_2 and results_in_query[query] > threshold_1:
+                            item_item_CF_weight = weight_2
+                            movies_item_item_CF_weight = 1 - weight_2
+                        else:
+                            item_item_CF_weight = weight_3
+                            movies_item_item_CF_weight = 1 - weight_3
+                        for user in users:
+                            hybrid_utility_matrix.loc[user,query] = round(item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query])
+                    mae = calculate_mae(real_complete_utility_matrix, hybrid_utility_matrix)
+                    rmse = calculate_rmse(real_complete_utility_matrix, hybrid_utility_matrix)
+                    #mape = calculate_mape(real_complete_utility_matrix, hybrid_utility_matrix)
+                    counter += 1
+                    if counter % 50 == 0:
+                        print(counter, "iterations done")
+                        print(threshold_1, threshold_2, weight_1, weight_2, weight_3, mae, rmse)
+                        log_to_txt(bf_PATH, 'Counter: ' + str(counter) + ' Thresholds: ' + str(threshold_1) + ' ' + str(threshold_2) + ' Weights: ' + str(weight_1) + ' ' + str(weight_2) + ' ' + str(weight_3) + ' MAE: ' + str(mae) + ' RMSE: ' + str(rmse) + '\n')
 
-    loss = mae + rmse + mre
-    '''
+                    if mae < best_mae and rmse < best_rmse:
+                        best_mae = mae
+                        best_rmse = rmse
+                        #best_mape = mape
+                        best_threshold_1 = threshold_1
+                        best_threshold_2 = threshold_2
+                        best_weight_1 = weight_1
+                        best_weight_2 = weight_2
+                        best_weight_3 = weight_3
+                        print("MAE: ", best_mae, "RMSE: ", best_rmse, "Threshold 1: ", best_threshold_1, "Threshold 2: ", best_threshold_2, "Weight 1: ", best_weight_1, "Weight 2: ", best_weight_2, "Weight 3: ", best_weight_3)
+                        log_to_txt(bf_best_PATH, 'Counter: ' + str(counter)  +  ' MAE: ' + str(best_mae) + ' RMSE: ' + str(best_rmse) + ' Threshold 1: ' + str(best_threshold_1) + ' Threshold 2: ' + str(best_threshold_2) + ' Weight 1: ' + str(best_weight_1) + ' Weight 2: ' + str(best_weight_2) + ' Weight 3: ' + str(best_weight_3) + '\n')
 
-    real_complete_utility_matrix_tensor = torch.tensor(real_complete_utility_matrix.values.astype(float), dtype=torch.float)
-    hybrid_utility_matrix_tensor = torch.tensor(hybrid_utility_matrix.values.astype(float), dtype=torch.float)
-    error = torch.mean((real_complete_utility_matrix_tensor - hybrid_utility_matrix_tensor) ** 2)
 
-    # Define the optimizer
-    optimizer = torch.optim.Adam([THRESHOLD_1_tensor, THRESHOLD_2_tensor, WEIGHT_1_tensor, WEIGHT_2_tensor, WEIGHT_3_tensor], lr=0.01)
-
-    # Train the model
-    for epoch in range(1000):
-        optimizer.zero_grad()
-        #loss.backward()
-        error.backward()
-        optimizer.step()
-        if epoch % 100 == 0:
-            print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, 1000, error.item()))
-            print('THRESHOLD_1: {:.4f}, THRESHOLD_2: {:.4f}, WEIGHT_1: {:.4f}, WEIGHT_2: {:.4f}, WEIGHT_3: {:.4f}'.format(THRESHOLD_1_tensor.item(), THRESHOLD_2_tensor.item(), WEIGHT_1_tensor.item(), WEIGHT_2_tensor.item(), WEIGHT_3_tensor.item()))
-            print()
-
-    print('Final Loss: {:.4f}'.format(error.item()))
-
-    print('Final THRESHOLD_1: {:.4f}, Final THRESHOLD_2: {:.4f}, Final WEIGHT_1: {:.4f}, Final WEIGHT_2: {:.4f}, Final WEIGHT_3: {:.4f}'.format(THRESHOLD_1_tensor.item(), THRESHOLD_2_tensor.item(), WEIGHT_1_tensor.item(), WEIGHT_2_tensor.item(), WEIGHT_3_tensor.item()))
-
-    # use the optimized parameters to create the hybrid utility matrix
-    THRESHOLD_1 = THRESHOLD_1_tensor.item()
-    THRESHOLD_2 = THRESHOLD_2_tensor.item()
-    WEIGHT_1 = WEIGHT_1_tensor.item()
-    WEIGHT_2 = WEIGHT_2_tensor.item()
-    WEIGHT_3 = WEIGHT_3_tensor.item()
-
-    print(THRESHOLD_1)
-
-    hybrid_utility_matrix = pd.DataFrame(index=users, columns=queries)
+    print('End of the search, best results are:')
+    print("MAE: ", best_mae, "RMSE: ", best_rmse, "Threshold 1: ", best_threshold_1, "Threshold 2: ", best_threshold_2, "Weight 1: ", best_weight_1, "Weight 2: ", best_weight_2, "Weight 3: ", best_weight_3)
 
     for query in queries:
-        if results_in_query[query] > THRESHOLD_2:
-            item_item_CF_weight = WEIGHT_1
-            movies_item_item_CF_weight = 1 - WEIGHT_1
-        elif results_in_query[query] < THRESHOLD_2 and results_in_query[query] > THRESHOLD_1:
-            item_item_CF_weight = WEIGHT_2
-            movies_item_item_CF_weight = 1 - WEIGHT_2
+        if results_in_query[query] > best_threshold_2:
+            item_item_CF_weight = best_weight_1
+            movies_item_item_CF_weight = 1 - best_weight_1
+        elif results_in_query[query] < best_threshold_2 and results_in_query[query] > best_threshold_1:
+            item_item_CF_weight = best_weight_2
+            movies_item_item_CF_weight = 1 - best_weight_2
         else:
-            item_item_CF_weight = WEIGHT_3
-            movies_item_item_CF_weight = 1 - WEIGHT_3
+            item_item_CF_weight = best_weight_3
+            movies_item_item_CF_weight = 1 - best_weight_3
         for user in users:
             hybrid_utility_matrix.loc[user,query] = round(item_item_CF_weight * item_item_CF_utility_matrix.loc[user,query] + movies_item_item_CF_weight * movies_item_item_CF_utilty_matrix.loc[user,query])
-
-    # save the hybrid utility matrix
 
     hybrid_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
     hybrid_utility_matrix.to_csv(hybrid_path)
 
 
 
-    #return hybrid_utility_matrix
+    return best_threshold_1, best_threshold_2, best_weight_1, best_weight_2, best_weight_3
 
 
 
@@ -244,8 +227,8 @@ if __name__ == '__main__':
     WEIGHT_2 = 0.5
     WEIGHT_3 = 0.3
 
-    hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
-    #hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
+    #hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
+    best_threshold_1, best_threshold_2, best_weight_1, best_weight_2, best_weight_3 = hybrid_recommender_gd(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = THRESHOLD_1, THRESHOLD_2 = THRESHOLD_2, WEIGHT_1 = WEIGHT_1, WEIGHT_2 = WEIGHT_2, WEIGHT_3 = WEIGHT_3)
 
     hybrid_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
     utility_matrix_complete = pd.read_csv(hybrid_path, index_col=0)
@@ -255,8 +238,12 @@ if __name__ == '__main__':
     PERFORMANCE_PATH = os.path.join(DIR, '../data/hybrid/performance.txt')
     print('--------------')
     log_to_txt(PERFORMANCE_PATH, '--------------\n')
-    print('Configuration: N_QUERIES =', N_QUERIES, ', N_USERS =', N_USERS, 'THRESHOLD_1 =', THRESHOLD_1, 'THRESHOLD_2 =', THRESHOLD_2)
-    log_to_txt(PERFORMANCE_PATH,'Configuration: N_QUERIES = ' + str(N_QUERIES) + ', N_USERS = ' + str(N_USERS) + ' THRESHOLD_1 = ' + str(THRESHOLD_1) + ' THRESHOLD_2 = ' + str(THRESHOLD_2) + '\n')
+    # print('Configuration: N_QUERIES =', N_QUERIES, ', N_USERS =', N_USERS, 'THRESHOLD_1 =', THRESHOLD_1, 'THRESHOLD_2 =', THRESHOLD_2)
+    # log_to_txt(PERFORMANCE_PATH,'Configuration: N_QUERIES = ' + str(N_QUERIES) + ', N_USERS = ' + str(N_USERS) + ' THRESHOLD_1 = ' + str(THRESHOLD_1) + ' THRESHOLD_2 = ' + str(THRESHOLD_2) + '\n')
+
+    print('Configuration:', 'THRESHOLD_1 =', best_threshold_1, 'THRESHOLD_2 =', best_threshold_2, 'WEIGHT_1 =', best_weight_1, 'WEIGHT_2 =', best_weight_2, 'WEIGHT_3 =', best_weight_3)
+
+
 
     # calculate and printing the performances
     print('\033[1m' + 'Performance of the hybrid algorithm:' + '\033[0m')

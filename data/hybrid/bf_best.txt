@@ -1,0 +1,11 @@
+Counter: 1 MAE: 2.7355159999999996 RMSE: 5.1198683576826465 Threshold 1: 1 Threshold 2: 300 Weight 1: 0.1 Weight 2: 0.1 Weight 3: 0.1
+Counter: 2 MAE: 2.7256559999999994 RMSE: 5.095967817794771 Threshold 1: 1 Threshold 2: 300 Weight 1: 0.1 Weight 2: 0.1 Weight 3: 0.2
+Counter: 3 MAE: 2.7196399999999996 RMSE: 5.080145667202861 Threshold 1: 1 Threshold 2: 300 Weight 1: 0.1 Weight 2: 0.1 Weight 3: 0.30000000000000004
+Counter: 4 MAE: 2.71676 RMSE: 5.071138728135921 Threshold 1: 1 Threshold 2: 300 Weight 1: 0.1 Weight 2: 0.1 Weight 3: 0.4
+Counter: 13 MAE: 2.7153959999999997 RMSE: 5.065290120022741 Threshold 1: 1 Threshold 2: 300 Weight 1: 0.1 Weight 2: 0.2 Weight 3: 0.4
+--------
+Counter: 1 MAE: 2.832124 RMSE: 5.269699422168213 Threshold 1: 1 Threshold 2: 500 Weight 1: 0.1 Weight 2: 0.5 Weight 3: 1.0
+Counter: 2 MAE: 2.8083120000000004 RMSE: 5.21601073618527 Threshold 1: 1 Threshold 2: 500 Weight 1: 0.1 Weight 2: 0.5 Weight 3: 0.85
+Counter: 3 MAE: 2.7913519999999994 RMSE: 5.180231655051731 Threshold 1: 1 Threshold 2: 500 Weight 1: 0.1 Weight 2: 0.5 Weight 3: 0.7
+Counter: 4 MAE: 2.781112 RMSE: 5.160516253244436 Threshold 1: 1 Threshold 2: 500 Weight 1: 0.1 Weight 2: 0.5 Weight 3: 0.5499999999999999
+Counter: 5 MAE: 2.7779240000000005 RMSE: 5.159168537661858 Threshold 1: 1 Threshold 2: 500 Weight 1: 0.1 Weight 2: 0.5 Weight 3: 0.3999999999999999

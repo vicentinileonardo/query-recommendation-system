@@ -267,7 +267,7 @@ def log_to_txt(path, text):
 if __name__ == '__main__':
 
     N_QUERIES = 100
-    N_USERS = 550
+    N_USERS = 2500
     TOP_N = 2
     TOP_K_QUERIES = 10
     N_USERS_TOP_K_QUERIES = 10
@@ -302,31 +302,31 @@ if __name__ == '__main__':
     real_utility_matrix_complete = prepare_matrix(real_utility_matrix_complete, n_queries=N_QUERIES, n_users=N_USERS)
 
     print('--------------')
-    log_to_txt(os.path.join(DIR,'../data/performance.txt'), '--------------\n')
+    log_to_txt(os.path.join(DIR,'../data/compact_user_user/performance.txt'), '--------------\n')
     print('Configuration: N_QUERIES =', N_QUERIES, ', N_USERS =', N_USERS)
-    log_to_txt(os.path.join(DIR,'../data/performance.txt'), 'Configuration: N_QUERIES = ' + str(N_QUERIES) + ', N_USERS = ' + str(N_USERS) + '\n')
+    log_to_txt(os.path.join(DIR,'../data/compact_user_user/performance.txt'), 'Configuration: N_QUERIES = ' + str(N_QUERIES) + ', N_USERS = ' + str(N_USERS) + '\n')
 
     # calculate and printing the performances
     print('\033[1m' + 'Performance of the user-user collaborative filtering algorithm:' + '\033[0m')
-    log_to_txt(os.path.join(DIR,'../data/performance.txt'), 'Performance of the user-user collaborative filtering algorithm:\n')
+    log_to_txt(os.path.join(DIR,'../data/compact_user_user/performance.txt'), 'Performance of the user-user collaborative filtering algorithm:\n')
 
     # mean absolute error: might be helped by the correct prediction of the 0s
     mae = calculate_mae(real_utility_matrix_complete, utility_matrix_complete)
     print('MAE: ', mae)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'MAE: ' + str(mae) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/compact_user_user/performance.txt'), 'MAE: ' + str(mae) + '\n')
 
     # RMSE is sensitive to outliers, since the square operation magnifies larger errors.
     rmse = calculate_rmse(real_utility_matrix_complete, utility_matrix_complete)
     print('RMSE :', rmse)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'RMSE: ' + str(rmse) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/compact_user_user/performance.txt'), 'RMSE: ' + str(rmse) + '\n')
 
     mape = calculate_mape(real_utility_matrix_complete, utility_matrix_complete)
     print('MAPE :', mape)
-    log_to_txt(os.path.join(DIR, '../data/performance.txt'), 'MAPE: ' + str(mape) + '\n')
+    log_to_txt(os.path.join(DIR, '../data/compact_user_user/performance.txt'), 'MAPE: ' + str(mape) + '\n')
 
     mre = calculate_mre(real_utility_matrix_complete, utility_matrix_complete)
     print('MRE: ', mre)
-    log_to_txt(os.path.join(DIR,'../data/performance.txt'), 'MRE: ' + str(mre) + '\n')
+    log_to_txt(os.path.join(DIR,'../data/compact_user_user/performance.txt'), 'MRE: ' + str(mre) + '\n')
 
     # save the top k queries
-    save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=TOP_K_QUERIES, n_users=N_USERS_TOP_K_QUERIES)
+    #save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=TOP_K_QUERIES, n_users=N_USERS_TOP_K_QUERIES)
