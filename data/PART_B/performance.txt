@@ -1,0 +1,13 @@
+--------------
+Performance of the proposed hybrid approach for PART_B:
+MAE: 4.040864
+RMSE: 6.108678416809973
+MAPE: 8.634231882029196
+MRE: 0.08634231882029196
+
+--------------
+Performance of the baseline for PART_B:
+MAE: 4.050768000000001
+RMSE: 6.136204690197354
+MAPE: 8.63322088627296
+MRE: 0.0863322088627296
