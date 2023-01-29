@@ -41,15 +41,15 @@ def save_results(TOP_K = 10, N_USERS = 2500):
     top_k_queries_real = [set([x[0] for x in top_k_queries_tuples_real[i]]) for i in range(N_USERS)]
 
     # save the top k queries for each user
-    with open(os.path.join(DIR, '../data/hybrid/top_' + str(TOP_K) + '_queries.csv'), 'w') as f:
+    with open(os.path.join(DIR, '../data/hybrid/top_k_queries/top_' + str(TOP_K) + '_queries.csv'), 'w') as f:
         writer = csv.writer(f)
         writer.writerows(top_k_queries_hybrid)
 
-    with open(os.path.join(DIR, '../data/item_item_cf/top_' + str(TOP_K) + '_queries.csv'), 'w') as f:
+    with open(os.path.join(DIR, '../data/item_item_cf/top_k_queries/top_' + str(TOP_K) + '_queries.csv'), 'w') as f:
         writer = csv.writer(f)
         writer.writerows(top_k_queries_compact)
 
-    with open(os.path.join(DIR, '../data/real_top_' + str(TOP_K) + '_queries.csv'), 'w') as f:
+    with open(os.path.join(DIR, '../data/top_k_queries/real_top_' + str(TOP_K) + '_queries.csv'), 'w') as f:
         writer = csv.writer(f)
         writer.writerows(top_k_queries_real)
 
@@ -70,10 +70,13 @@ if __name__ == "__main__":
 
     N_USERS = 2500
     TOP_K_VALUES = [1, 2, 3, 4, 5, 10, 15, 20, 30]
+    LOG_PATH = os.path.join(DIR, '../data/jaccard_top_k.txt')
 
     #save_results(TOP_K, N_USERS)
     df = pd.DataFrame(columns=['top_k', 'algorithm_type', 'jaccard_similarity_value'])
     for TOP_K in TOP_K_VALUES:
+
+        save_results(TOP_K, N_USERS)
 
         # read the top k queries for each user for each csv file and store them lists of sets, each row is a set of queries
         hybrid_path = os.path.join(DIR, '../data/hybrid/top_k_queries/top_' + str(TOP_K) + '_queries.csv')
@@ -96,37 +99,32 @@ if __name__ == "__main__":
             df = df.append({'user': i, 'top_k': TOP_K, 'algorithm_type': 'compact', 'jaccard_similarity_value': jaccard_similarity_compact[i]}, ignore_index=True)
             df = df.append({'user': i, 'top_k': TOP_K, 'algorithm_type': 'hybrid', 'jaccard_similarity_value': jaccard_similarity_hybrid[i]},ignore_index=True)
 
+        print('TOP_K: ', TOP_K)
+        log_to_txt(LOG_PATH, 'TOP_K: ' + str(TOP_K) + '\n')
+
+        print('Jaccard similarity hybrid: ', np.mean(jaccard_similarity_hybrid))
+        print('Jaccard similarity compact: ', np.mean(jaccard_similarity_compact))
+        log_to_txt(LOG_PATH, 'Jaccard similarity hybrid: ' + str(np.mean(jaccard_similarity_hybrid)) + '\n')
+        log_to_txt(LOG_PATH, 'Jaccard similarity compact: ' + str(np.mean(jaccard_similarity_compact)) + '\n')
+
+        print('Lowest jaccard similarity hybrid: ', np.min(jaccard_similarity_hybrid))
+        print('Lowest jaccard similarity compact: ', np.min(jaccard_similarity_compact))
+        log_to_txt(LOG_PATH, 'Lowest jaccard similarity hybrid: ' + str(np.min(jaccard_similarity_hybrid)) + '\n')
+        log_to_txt(LOG_PATH, 'Lowest jaccard similarity compact: ' + str(np.min(jaccard_similarity_compact)) + '\n')
+
+        print('Highest jaccard similarity hybrid: ', np.max(jaccard_similarity_hybrid))
+        print('Highest jaccard similarity compact: ', np.max(jaccard_similarity_compact))
+        log_to_txt(LOG_PATH, 'Highest jaccard similarity hybrid: ' + str(np.max(jaccard_similarity_hybrid)) + '\n')
+        log_to_txt(LOG_PATH, 'Highest jaccard similarity compact: ' + str(np.max(jaccard_similarity_compact)) + '\n')
+
+        log_to_txt(LOG_PATH, '--------------------------------------------------------\n')
+
 
     print(df.head())
     # save the dataframe to a csv file
     df.to_csv(os.path.join(DIR, '../data/df_jaccard_similarity.csv'), index=False)
 
 
-    '''
-    LOG_PATH = os.path.join(DIR, '../data/jaccard_top_k.txt')
-
-    print('TOP_K: ', TOP_K)
-    log_to_txt(LOG_PATH, 'TOP_K: ' + str(TOP_K) + '\n')
-
-    #print('Jaccard similarity hybrid: ', np.mean(jaccard_similarity_hybrid))
-    print('Jaccard similarity compact: ', np.mean(jaccard_similarity_compact))
-
-    #log_to_txt(LOG_PATH, 'Jaccard similarity hybrid: ' + str(np.mean(jaccard_similarity_hybrid)) + '\n')
-    log_to_txt(LOG_PATH, 'Jaccard similarity compact: ' + str(np.mean(jaccard_similarity_compact)) + '\n')
-
-    #print('Lowest jaccard similarity hybrid: ', np.min(jaccard_similarity_hybrid))
-    print('Lowest jaccard similarity compact: ', np.min(jaccard_similarity_compact))
-
-    #log_to_txt(LOG_PATH, 'Lowest jaccard similarity hybrid: ' + str(np.min(jaccard_similarity_hybrid)) + '\n')
-    log_to_txt(LOG_PATH, 'Lowest jaccard similarity compact: ' + str(np.min(jaccard_similarity_compact)) + '\n')
-
-    #print('Highest jaccard similarity hybrid: ', np.max(jaccard_similarity_hybrid))
-    print('Highest jaccard similarity compact: ', np.max(jaccard_similarity_compact))
-
-    #log_to_txt(LOG_PATH, 'Highest jaccard similarity hybrid: ' + str(np.max(jaccard_similarity_hybrid)) + '\n')
-    log_to_txt(LOG_PATH, 'Highest jaccard similarity compact: ' + str(np.max(jaccard_similarity_compact)) + '\n')
-    log_to_txt(LOG_PATH, '-----------------\n')
-    '''
 
 
 
