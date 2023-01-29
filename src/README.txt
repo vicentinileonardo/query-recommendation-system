@@ -19,19 +19,11 @@ Computing utility matrices:
     The program is run by executing the following command:
     python3 compact_item_item_cf.py or python compact_item_item_cf.py
 
-    2.2 Compact User-User Collaborative Filtering
-    The program is run by executing the following command:
-    python3 compact_user_user_cf.py or python compact_user_user_cf.py
-
-    2.3 Expanded Item-Item Collaborative Filtering
+    2.2 Expanded Item-Item Collaborative Filtering
     The program is run by executing the following command:
     python3 expanded_item_item_cf.py or python expanded_item_item_cf.py
 
-    2.4 Expanded User-User Collaborative Filtering
-    The program is run by executing the following command:
-    python3 expanded_user_user_cf.py or python expanded_user_user_cf.py
-
-    2.5 Hybrid
+    2.3 Hybrid
     The program is run by executing the following command:
     python3 hybrid.py or python hybrid.py
 

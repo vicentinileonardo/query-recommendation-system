@@ -105,18 +105,25 @@ def alternative_plot_charts_topk(csv_path):
     for i in range(len(df["top_k"].unique()) - 1):
         plt.vlines(i + 0.5, -3, 45, linestyles="solid", colors="gray", alpha=0.2)
 
+    # add light grey hlines at 0.5
+    plt.axhline(y=0.5, color='lightgrey', linestyle='-')
+
     # Decorate
     plt.ylim(-1, 2)
 
     plt.gca().set_yticks([0.0, 0.5, 1.0])
     plt.title("Dot-Box Plot of Top-K queries", fontsize=22)
-    plt.xlabel("Top-K", fontsize=18)
-    plt.ylabel("Jaccard similarity", fontsize=18)
+    plt.xlabel("Top-K", fontsize=22)
+    plt.ylabel("Jaccard similarity", fontsize=22)
+
+    # set xtiks size
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
     # since we have two Seaborn plots with "hue", we'll have two legends with the same information
     # remove one of the redundant legends:
     handles, labels = mpg_stripplot.get_legend_handles_labels()
     n_classes = df["algorithm_type"].nunique()
-    plt.legend(handles[0:n_classes], labels[0:n_classes], title="algorithm_type")
+    plt.legend(handles[0:n_classes], labels[0:n_classes], title="algorithm_type", fontsize=15, title_fontsize=15)
 
     # save the chart
     plt.savefig('../data/jaccard.png', dpi=300)
