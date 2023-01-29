@@ -187,7 +187,7 @@ def alternative_plot_charts_topk(csv_path):
     plt.legend(handles[0:n_classes], labels[0:n_classes], title="algorithm_type")
 
     # save the chart
-    plt.savefig('../data/jaccard.png', dpi=300)
+    plt.savefig('../data/PART_B/jaccard.png', dpi=300)
 
     plt.show()
 
@@ -197,4 +197,4 @@ def alternative_plot_charts_topk(csv_path):
 if __name__ == "__main__":
     #plot_charts('../data/movies_item_item_cf/performance.txt')
     #plot_charts_topk('../data/jaccard_top_k.txt')
-    alternative_plot_charts_topk('../data/df_jaccard_similarity.csv')
+    alternative_plot_charts_topk('../data/PART_B/df_jaccard_similarity.csv')
