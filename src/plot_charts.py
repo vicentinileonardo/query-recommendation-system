@@ -3,7 +3,7 @@ import numpy as np
 #from mplfinance.original_flavor import candlestick2_ohlc
 import seaborn as sns
 import pandas as pd
-from matplotlib.patches import Rectangle
+
 
 def plot_charts(path):
     # read the file
