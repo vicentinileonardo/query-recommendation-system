@@ -1,0 +1,64 @@
+TOP_K: 1
+Jaccard similarity hybrid: 0.1148
+Jaccard similarity compact: 0.1112
+Lowest jaccard similarity hybrid: 0.0
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity hybrid: 1.0
+Highest jaccard similarity compact: 1.0
+--------------------------------------------------------
+TOP_K: 2
+Jaccard similarity hybrid: 0.1544
+Jaccard similarity compact: 0.14973333333333333
+Lowest jaccard similarity hybrid: 0.0
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity hybrid: 1.0
+Highest jaccard similarity compact: 1.0
+--------------------------------------------------------
+TOP_K: 3
+Jaccard similarity hybrid: 0.17811999999999997
+Jaccard similarity compact: 0.17251999999999998
+Lowest jaccard similarity hybrid: 0.0
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity hybrid: 1.0
+Highest jaccard similarity compact: 1.0
+--------------------------------------------------------
+TOP_K: 4
+Jaccard similarity hybrid: 0.19986666666666666
+Jaccard similarity compact: 0.19356952380952377
+Lowest jaccard similarity hybrid: 0.0
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity hybrid: 1.0
+Highest jaccard similarity compact: 1.0
+--------------------------------------------------------
+TOP_K: 5
+Jaccard similarity hybrid: 0.2120047619047619
+Jaccard similarity compact: 0.20831269841269842
+Lowest jaccard similarity hybrid: 0.0
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity hybrid: 1.0
+Highest jaccard similarity compact: 1.0
+--------------------------------------------------------
+TOP_K: 10
+Jaccard similarity hybrid: 0.28021982231734555
+Jaccard similarity compact: 0.2722831361620835
+Lowest jaccard similarity hybrid: 0.0
+Lowest jaccard similarity compact: 0.0
+Highest jaccard similarity hybrid: 0.8181818181818182
+Highest jaccard similarity compact: 0.8181818181818182
+--------------------------------------------------------
+TOP_K: 15
+Jaccard similarity hybrid: 0.36711423557313444
+Jaccard similarity compact: 0.35963756192895513
+Lowest jaccard similarity hybrid: 0.07142857142857142
+Lowest jaccard similarity compact: 0.07142857142857142
+Highest jaccard similarity hybrid: 0.7647058823529411
+Highest jaccard similarity compact: 0.7647058823529411
+--------------------------------------------------------
+TOP_K: 25
+Jaccard similarity hybrid: 0.5972923465544597
+Jaccard similarity compact: 0.591752634762245
+Lowest jaccard similarity hybrid: 0.35135135135135137
+Lowest jaccard similarity compact: 0.35135135135135137
+Highest jaccard similarity hybrid: 0.8518518518518519
+Highest jaccard similarity compact: 0.9230769230769231
+--------------------------------------------------------
