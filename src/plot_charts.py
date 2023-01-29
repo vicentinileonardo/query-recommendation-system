@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from mplfinance.original_flavor import candlestick2_ohlc
+#from mplfinance.original_flavor import candlestick2_ohlc
 import seaborn as sns
 import pandas as pd
 from matplotlib.patches import Rectangle
@@ -79,74 +79,6 @@ def plot_charts(path):
 
     plt.show()
 
-def plot_charts_topk(path):
-    # read the file
-    with open(path, 'r') as f:
-        lines = f.readlines()
-
-    # parse the file
-    TOP_K = []
-    compact_mean = []
-    compact_min = []
-    compact_max = []
-    hybrid_mean = [0.3, 0.5, 0.4, 0.3, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2]
-    hybrid_min = [0 for x in range(1, 15)]
-    hybrid_max = [1 for x in range(1, 15)]
-
-    for line in lines:
-        if line.startswith('TOP_K: '):
-            TOP_K.append(int(line.split('TOP_K: ')[1].split('  ')[0]))
-        elif line.startswith('Jaccard similarity compact: '):
-            compact_mean.append(float(line.split('Jaccard similarity compact: ')[1].split('   ')[0]))
-        elif line.startswith('Lowest jaccard similarity compact: '):
-            compact_min.append(float(line.split('Lowest jaccard similarity compact: ')[1].split('   ')[0]))
-        elif line.startswith('Highest jaccard similarity compact: '):
-            compact_max.append(float(line.split('Highest jaccard similarity compact: ')[1].split('   ')[0]))
-        elif line.startswith('Jaccard similarity hybrid: '):
-            hybrid_mean.append(float(line.split('Jaccard similarity hybrid: ')[1].split('   ')[0]))
-        elif line.startswith('Lowest jaccard similarity hybrid: '):
-            hybrid_min.append(float(line.split('Lowest jaccard similarity hybrid: ')[1].split('   ')[0]))
-        elif line.startswith('Highest jaccard similarity hybrid: '):
-            hybrid_max.append(float(line.split('Highest jaccard similarity hybrid: ')[1].split('   ')[0]))
-
-    print(TOP_K)
-    print(compact_mean)
-    print(compact_min)
-    print(compact_max)
-    print(hybrid_mean)
-    print(hybrid_min)
-    print(hybrid_max)
-
-    # plot candlestick chart of jaccard similarity, using mean, min and max
-    fig, ax = plt.subplots()
-    ax.set_title('Jaccard similarity between items')
-    ax.set_xlabel('TOP_K')
-    ax.set_ylabel('Jaccard similarity')
-    ax.set_ylim(-1, 2)
-    ax.set_xticks(TOP_K)
-    ax.set_xticklabels(TOP_K)
-    ax.grid(True)
-
-    # plot the candlestick chart
-
-    candlestick2_ohlc(ax, compact_min, compact_max, compact_mean, compact_mean, width=0.6, colorup='g', colordown='r', alpha=0.75)
-    candlestick2_ohlc(ax, hybrid_min, hybrid_max, hybrid_mean, hybrid_mean, width=0.6, colorup='b', colordown='b', alpha=0.75)
-
-
-
-
-
-    # set dpi
-    plt.rcParams['figure.dpi'] = 300
-
-
-    plt.legend()
-
-    # save the chart
-    plt.savefig('../data/jaccard.png', dpi=300)
-
-    plt.show()
-
 def alternative_plot_charts_topk(csv_path):
     # Import
     df = pd.read_csv(csv_path)
@@ -187,7 +119,7 @@ def alternative_plot_charts_topk(csv_path):
     plt.legend(handles[0:n_classes], labels[0:n_classes], title="algorithm_type")
 
     # save the chart
-    plt.savefig('../data/PART_B/jaccard.png', dpi=300)
+    plt.savefig('../data/jaccard.png', dpi=300)
 
     plt.show()
 
@@ -196,5 +128,4 @@ def alternative_plot_charts_topk(csv_path):
 
 if __name__ == "__main__":
     #plot_charts('../data/movies_item_item_cf/performance.txt')
-    #plot_charts_topk('../data/jaccard_top_k.txt')
-    alternative_plot_charts_topk('../data/PART_B/df_jaccard_similarity.csv')
+    alternative_plot_charts_topk('../data/df_jaccard_similarity.csv')
