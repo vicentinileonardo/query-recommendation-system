@@ -297,8 +297,7 @@ if __name__ == '__main__':
     N_QUERIES = 100
     N_USERS = 2500
     TOP_N = 2
-    TOP_K_QUERIES = 10
-    N_USERS_TOP_K_QUERIES = 10
+
 
     # load the data
     start_time_load = time.time()
@@ -325,10 +324,10 @@ if __name__ == '__main__':
     difference_utility_matrix = compute_difference(utility_matrix_complete, n_queries=N_QUERIES, n_users=N_USERS)
 
     # print the data to html, for testing purposes
-    print_data_to_html(utility_matrix_before_pp, partial_utility_matrix, centered_matrix, utility_matrix_complete, difference_utility_matrix)
+    #print_data_to_html(utility_matrix_before_pp, partial_utility_matrix, centered_matrix, utility_matrix_complete, difference_utility_matrix)
 
     # plot the heatmap of the difference utility matrix
-    plot_heatmap(difference_utility_matrix, 'Difference', annot=False, n_rows=N_QUERIES, n_columns=N_USERS)
+    #plot_heatmap(difference_utility_matrix, 'Difference', annot=False, n_rows=N_QUERIES, n_columns=N_USERS)
 
     real_utility_matrix_complete = import_data('real_complete')
     real_utility_matrix_complete = prepare_matrix(real_utility_matrix_complete, n_queries=N_QUERIES, n_users=N_USERS)
@@ -361,5 +360,3 @@ if __name__ == '__main__':
     print('MRE: ', mre)
     log_to_txt(os.path.join(DIR, '../data/item_item_cf/performance.txt'), 'MRE: ' + str(mre) + '\n')
 
-    # save the top k queries
-    save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=TOP_K_QUERIES, n_users=N_USERS_TOP_K_QUERIES)

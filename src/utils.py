@@ -2,7 +2,7 @@ import string
 import random
 import os
 import shutil
-from scipy.stats import truncnorm
+
 
 
 def get_random_string(n):
