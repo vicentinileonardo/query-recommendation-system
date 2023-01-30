@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
-from scipy.stats import pearsonr
+
 
 from item_item_CF import import_data, calculate_rmse, calculate_mae, calculate_mre, calculate_mape, log_to_txt
 
