@@ -1,0 +1,92 @@
+\section{Problem Statement}
+\label{sec:problem_statement}
+
+We can define the previously mentioned problem more formally, specifically by dividing our task into \textbf{two major sub-tasks} or \textbf{sub-problems}.
+
+For the first sub-task, the inputs given are:
+\begin{itemize}
+
+  \item A \textbf{relational table} $RT$: where each item $i$ is represented by a row containing 
+  some values that characterize specific attributes of that item. Therefore, each row represent a tuple of the shape: $\langle attr1, attr2, attr3, ..., attrN \rangle$. All the fields of all the tuples have a value and there are no NULL values. Formally: 
+  $$\mathbf{RT} = \left{ \left(v_{1,i}, v_{2,i}, \dots, v_{N,i} \right) \mid v_{j,i} \in \mathbf{V} \right}$$
+
+    
+  \item A \textbf{user set} $US$: 
+  where each user $u$ is represented by one row that contains only the id of the user $u$. Formally:
+  $$\mathbf{US} = \left{ u_i \mid u_i \in \mathbf{U_{ID}} \right}$$
+    
+  \item A \textbf{query set} $QS$: where each query $q$ previously posed is represented by a row.
+  Each row starts with an identifier of the query and continues with its definition composed by conjunction of \emph{"attribute=value"} conditions. For the same query, there couldn't be more than a condition regarding the same attribute. Formally: $$\mathbf{QS} = \left{ \left(q_i, \left{ \left(a_j, v_j \right) \right}_{j=1}^n \right) \mid q_i \in \mathbf{Q_{ID}}, \left(a_j, v_j \right) \in \mathbf{AV}, n \ge 1 \right}$$
+
+  \item A \textbf{utility matrix} $U$: a matrix in which each row corresponds to a user $u$, each column to a query $q$ and for some user-query pairs $(u,q)$, a satisfaction rating between 0 and 100 is provided. 
+  So, $U_{u,q}$ represents the satisfaction rating for user $u$ and query $q$ and the condition $ 0 \le U_{u,q} \le 100 $ holds. Formally: 
+$$
+\begin{aligned}
+N &= |\mathbf{US}| \\
+M &= |\mathbf{QS}| \\
+\mathbf{R} &= \left\{ r \in \mathbb{R} \mid 0 \leq r \leq 100 \right\} \\
+\mathbf{U} &= \left\{ \mathbf{U}_{u,q} \in \mathbf{R} \cup {\text\{{NULL\}}} \mid 0 \leq u < N, 0 \leq q < M \right\} 
+\end{aligned}
+$$
+
+\end{itemize}
+
+
+
+
+
+The goal of the first task is to \textbf{fill} the utility matrix's user-query pairs that still don't have a value in a coherent way with the interest of each user. In this manner we could, given that completed matrix $C$ and a user $u$, return the top-k queries that might be of interest to a specific user $u$.
+More formally, the outputs of the first task are:
+\begin{itemize}
+    \item A \textbf{completed utility matrix} $C$, where $C_{u,q}$ represents the satisfaction rating for user $u$ and query $q$, including the previously missing values. Formally:
+    $$
+\mathbf{C} &= \left\{ \mathbf{C}_{u,q} \in \mathbf{R} \mid 0 \leq u < N, 0 \leq q < M \right\} 
+$$
+with $R$, $N$ and $M$ defined like in the case of $U$.
+    \item A \textbf{list of top-$k$ queries} $L$ that might be of interest to a specific user $u$.
+    Formally:
+    $$
+    \begin{aligned}
+        \mathbf{L} &= { \left(u, q_i, r_{i} \right) \mid u \in \mathbf{US}, q_i \in \mathbf{QS}, r_{i} \in \mathbf{R},1 \leq i \leq k, 
+    \end{aligned}    
+    $$    
+    $$
+    \begin{aligned}
+ 
+        \forall x, y \in \{1, 2, 3, ..., k\}, x < y, 100 \geq r_x \geq r_y  \geq \mathbf{BR} \geq 0
+        }
+    \end{aligned}    
+    $$    
+    
+where $r_{i}$ represents the satisfaction rating for the fixed user $u$ and query $q_{i}$, $R$ defined as before. We define the set of good ratings $GR$ = \{$r_1, r_2, ..., r_k$\} and bad ratings $BR$ such that $\mathbf{GR} \cap \mathbf{BR} = \varnothing$ holds. \\
+\end{itemize}
+
+
+After completing the first sub-task, we want to \textbf{broaden} the problem in a more general sense: given the elements produced by the previous task as input, we want to find a way to compute a utility matrix for a query in general for all the users. 
+
+More formally, the output of the second sub-task is:
+\begin{itemize}
+    \item An \textbf{array} $QU$ of satisfaction ratings which represents the utility of a query in general, (i.e. \textbf{an unseen query}) for all the users in the user set $US$. Formally:
+$$
+\begin{aligned}
+\mathbf{QU} &= \left{ \left( q, u_i, r_i \right) \mid q \in \mathbf{NQS}, u_i \in \mathbf{US}, r_{i} \in \mathbf{R}, 0 \leq i < N \right} 
+\end{aligned}
+$$
+
+where $NQS$ is a set of unseen queries (i.e.: $\mathbf{NQS} \cap \mathbf{QS} = \varnothing$), $r_{i}$ represents the satisfaction rating for user $u_{i}$ and the fixed query $q$, $R$ and $N$ are defined as before.
+
+\end{itemize}
+
+
+
+\subsection{Our scenario}
+
+The inputs and the outputs managed by the tool are organized in \textbf{csv} files.
+
+The context that we exploited in order to create a tool for accomplishing the previously formalized task is related to movies. 
+
+In the context of this specific chosen domain, the tuples composing the relation table $RT$ are of the shape: $\langle name, genre, runtime, year, \\country, score \rangle$.
+Note that \textit{rating} could represent a generic rating given by a review aggregator like Rotten Tomatoes or IMDb.
+\\
+
+As a result, the relational table contains some discrete fields (such as genre and nationality) as well as some continuous ones (such as length, publication year, and rating) that are also used in the defined queries. We also assumed that users could have an unspoken preference for the genre, nationality, length, and publication year when generating the partial utility matrix, while there are fields that have no significance (the title) and others that influence the preferences of all users in the same way (the rating).

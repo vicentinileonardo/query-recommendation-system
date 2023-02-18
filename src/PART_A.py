@@ -26,7 +26,7 @@ def get_top_k_queries(partial_utility_matrix, computed_utility_matrix, user=0, t
     return query_rating_list[:top_k]
 
 def save_top_k_queries(partial_utility_matrix, utility_matrix_complete, top_k=10, n_users=10):
-    path = '../data/item_item_cf/top_' + str(top_k) + '_queries_n_' + str(n_users) + '_users.txt'
+    path = '../data/compact_item_item_cf/top_' + str(top_k) + '_queries_n_' + str(n_users) + '_users.txt'
     path = os.path.join(DIR, path)
 
     with open(path, 'w') as f:

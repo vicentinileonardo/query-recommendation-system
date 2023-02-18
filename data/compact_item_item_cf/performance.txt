@@ -1,0 +1,304 @@
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 10
+Time taken: 0.3159208297729492
+Performance of the item-item collaborative filtering algorithm:
+MAE: 4.048
+RMSE: 7.687132105018099
+MAPE: 8.773101910810167
+MRE: 0.08773101910810167
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 20
+Time taken: 0.6409001350402832
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.7915
+RMSE: 6.898296891262365
+MAPE: 8.205813584474289
+MRE: 0.08205813584474288
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 50
+Time taken: 5.251671075820923
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.6162
+RMSE: 6.776208379322466
+MAPE: 8.314072753104677
+MRE: 0.08314072753104677
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 100
+Time taken: 10.149338960647583
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.3873
+RMSE: 6.258665992046547
+MAPE: 7.572389041623047
+MRE: 0.07572389041623047
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 200
+Time taken: 23.205178022384644
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.30255
+RMSE: 6.073075826959516
+MAPE: 7.255505708923278
+MRE: 0.07255505708923278
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 300
+Time taken: 38.777003049850464
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2853333333333334
+RMSE: 6.03794115020454
+MAPE: 7.244183011577234
+MRE: 0.07244183011577233
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 400
+Time taken: 58.4986629486084
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2496500000000004
+RMSE: 5.956735683241283
+MAPE: 7.168807612403145
+MRE: 0.07168807612403146
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 500
+Time taken: 95.85599112510681
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2677199999999997
+RMSE: 5.989600988379777
+MAPE: 7.208566554026155
+MRE: 0.07208566554026155
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 600
+Time taken: 130.6879518032074
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2507333333333333
+RMSE: 5.964810698309433
+MAPE: 7.172910464601491
+MRE: 0.07172910464601491
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 700
+Time taken: 157.45234298706055
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2210428571428573
+RMSE: 5.9140740127742255
+MAPE: 7.084951695493737
+MRE: 0.07084951695493737
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 800
+Time taken: 200.80069303512573
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2175
+RMSE: 5.916335436737846
+MAPE: 7.058018128948124
+MRE: 0.07058018128948124
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 900
+Time taken: 236.54097414016724
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2254222222222224
+RMSE: 5.918505817443378
+MAPE: 7.042244187095618
+MRE: 0.07042244187095618
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1000
+Time taken: 232.9806191921234
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2384800000000005
+RMSE: 5.940259253601647
+MAPE: 7.062210309904484
+MRE: 0.07062210309904483
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1100
+Time taken: 335.70395374298096
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.205490909090909
+RMSE: 5.887885868459069
+MAPE: 6.983166675227127
+MRE: 0.06983166675227127
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1200
+Time taken: 346.5383360385895
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.204158333333333
+RMSE: 5.89123996568917
+MAPE: 6.974574331230163
+MRE: 0.06974574331230163
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1300
+Time taken: 388.14905285835266
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2184923076923075
+RMSE: 5.914446459566349
+MAPE: 6.983009081494786
+MRE: 0.06983009081494786
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1400
+Time taken: 517.6635797023773
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2339357142857144
+RMSE: 5.934541142449732
+MAPE: 7.025831978608791
+MRE: 0.0702583197860879
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1500
+Time taken: 437.6215031147003
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2211666666666665
+RMSE: 5.915152857985441
+MAPE: 7.005265037731906
+MRE: 0.07005265037731906
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1600
+Time taken: 607.7560682296753
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.191825
+RMSE: 5.871126382560676
+MAPE: 6.940431891218866
+MRE: 0.06940431891218866
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1700
+Time taken: 497.523175239563
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.194641176470588
+RMSE: 5.875160573525279
+MAPE: 6.940369056250279
+MRE: 0.06940369056250278
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1800
+Time taken: 639.1585619449615
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.172011111111111
+RMSE: 5.826859264551435
+MAPE: 6.885285913099
+MRE: 0.06885285913099
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 1900
+Time taken: 474.77368807792664
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.164605263157895
+RMSE: 5.814810038984393
+MAPE: 6.864950647979966
+MRE: 0.06864950647979966
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2000
+Time taken: 677.6297352313995
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.16913
+RMSE: 5.826058702072955
+MAPE: 6.878307709921014
+MRE: 0.06878307709921014
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2100
+Time taken: 574.3882460594177
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.1717476190476193
+RMSE: 5.834927265225865
+MAPE: 6.896477283577898
+MRE: 0.06896477283577898
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2200
+Time taken: 816.4910569190979
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.155740909090909
+RMSE: 5.808717195263121
+MAPE: 6.843610523127289
+MRE: 0.06843610523127289
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2300
+Time taken: 785.4941990375519
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.162121739130435
+RMSE: 5.8211615455276995
+MAPE: 6.877441196269826
+MRE: 0.06877441196269826
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2400
+Time taken: 1231.2168760299683
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.1564750000000004
+RMSE: 5.810136974862698
+MAPE: 6.854336935917608
+MRE: 0.06854336935917608
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2500
+Time taken: 1827.633297920227
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.142092
+RMSE: 5.789066591429054
+MAPE: 6.821889659664748
+MRE: 0.06821889659664748
+--------------
+Configuration: N_QUERIES = 10, N_USERS = 2500
+Time taken: 10.863991975784302
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2684800000000003
+RMSE: 6.049945454299568
+MAPE: 7.542670290705837
+MRE: 0.07542670290705837
+--------------
+Configuration: N_QUERIES = 20, N_USERS = 2500
+Time taken: 63.31589674949646
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.1939399999999996
+RMSE: 5.921555538876588
+MAPE: 7.300019815249559
+MRE: 0.07300019815249559
+--------------
+Configuration: N_QUERIES = 30, N_USERS = 2500
+Time taken: 259.31490325927734
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.1099733333333335
+RMSE: 5.79110812654481
+MAPE: 7.0829968496991444
+MRE: 0.07082996849699144
+--------------
+Configuration: N_QUERIES = 40, N_USERS = 2500
+Time taken: 169.88737201690674
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.03104
+RMSE: 5.77400554208255
+MAPE: 7.240096631898503
+MRE: 0.07240096631898503
+--------------
+Configuration: N_QUERIES = 50, N_USERS = 2500
+Time taken: 255.12425303459167
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.265272
+RMSE: 6.023531854319358
+MAPE: 7.269803231874813
+MRE: 0.07269803231874813
+--------------
+Configuration: N_QUERIES = 60, N_USERS = 2500
+Time taken: 297.82689595222473
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.348373333333334
+RMSE: 6.066630036519451
+MAPE: 7.145262989297593
+MRE: 0.07145262989297593
+--------------
+Configuration: N_QUERIES = 70, N_USERS = 2500
+Time taken: 450.2025270462036
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.1616800000000005
+RMSE: 5.873565964800016
+MAPE: 7.056068673757525
+MRE: 0.07056068673757525
+--------------
+Configuration: N_QUERIES = 80, N_USERS = 2500
+Time taken: 427.00846695899963
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2359299999999998
+RMSE: 5.916187116716306
+MAPE: 6.969024164942719
+MRE: 0.06969024164942719
+--------------
+Configuration: N_QUERIES = 90, N_USERS = 2500
+Time taken: 710.4490392208099
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.2323288888888886
+RMSE: 5.887494090584437
+MAPE: 6.885012133765775
+MRE: 0.06885012133765775
+--------------
+Configuration: N_QUERIES = 100, N_USERS = 2500
+Time taken: 29.81625771522522
+Performance of the item-item collaborative filtering algorithm:
+MAE: 3.142092
+RMSE: 5.789066591429054
+MAPE: 6.821889659664748
+MRE: 0.06821889659664748

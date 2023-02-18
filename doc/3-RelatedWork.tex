@@ -1,0 +1,63 @@
+\section{Related work}
+\label{sec:related_work}
+\subsection{Utility Matrix and Complete Utility Matrix}
+The concept of \textbf{Utility Matrix} is fundamental in order to understand the problem statement and also the solution proposed. An Utility Matrix is a matrix composed of $u$ rows, with $u$ the number of \textbf{users} considered, and $i$ columns, with $i$ the number of \textbf{items} belonging to the Relational Table taken into account. In the interception between a certain row $n$ and a certain column $m$ there could be a value, to represent the preference score given by the user $n$ for the item $m$, or not, in the case the user $n$ still have not expressed explicitly a rating regarding the item $m$.\cite{Book-ch9} The main goal of a recommendation system regards filling the missing values of this Utility Matrix in order to obtain a complete one, in which the \textbf{blank ratings} are deduced in a coherent way by the ones explicitly expressed in the partial one. 
+
+\subsection{Collaborative filtering systems}
+\subsubsection{Item-Item Collaborative filtering systems}
+The \textbf{collaborative filtering systems}, and in particular the \textbf{item-item} collaborative filtering ones, represent the first approach tried in developing the proposed solution and that ended up being an important part of it. Indeed, it was demonstrated that the item-item collaborative filtering approaches represent one of the most valid methods because they work referring to the items' attributes that are much simpler in comparison to the ones that regards the users, that instead can be characterized by multiple tastes.\cite{Book-ch9} The main idea of this approach, that will be better developed during the \textbf{Chapter \ref{sec:solution}}, is related in finding, for each item, a certain set of a chosen cardinality composed by its most similar ones. In this way, it's possible to assume that an \textbf{unrated cell} belonging to the utility matrix will have a rating obtained by combining the known ratings of other similar items in a weighted way \cite{Book-ch9}.
+Also the theory regarding the advantages and disadvantages of a Collaborative Filtering System suggested why it would work well in a context like ours. Indeed:
+\begin{itemize}
+    \item The main advantages regards its ability to be used \textbf{independently} by the nature and the attributes' shape. This aspect is critical in developing a solution that will work well regardless of the dataset proposed.
+    \item The common disadvantages of a collaborative filtering system, for example the Cold Start (the inability of identifying the taste of some users due to the lack of their ratings) and the one related, similarly, to the fact that a newly introduced item will not have any valuation, will not regard our scenario. Those problems indeed often characterize  \textbf{online contexts}, in which new data are presented over time to the system.
+\end{itemize}
+\subsubsection{Why a bigger dataset can be helpful in solving our task}
+The fact that the ratings computation consists in finding the items that are similar to one chosen has a consequence that more will be the data in a dataset, better will be the results found. This works because:
+\begin{itemize}
+    \item more are the \textbf{items} considered, more probable will be to have, in the dataset, a set of items very similar to any one proposed.
+    \item more are the \textbf{users} considered, more will be the number of ratings given by them to the items. This situation is also advantageous in order to find groups of similar items.
+    \item also a \textbf{less sparse} utility matrix will be helpful in order to fill it in a better way. Indeed, also in this case, a greater number of known ratings will be helpful in order to understand better the items features, useful to find precisely the more similar items to one chosen.
+\end{itemize}
+\subsubsection{Approaches to reduce the time complexity}
+Even if having more data will be helpful in computing a more coherent complete utility matrix, this will also have the \textbf{drawback} of analyzing and filling a greater matrix at the expenses of the performance in time. For this reason, some approaches were developed in order to fill an utility matrix with a lower complexity, having as consequence a slightly worse ratings predictions. 
+The main approach used regards the \textbf{clustering}, with which is reduced the number of users, of items or of both by considering together the users or the items that are similar between them. This clustering procedure is performed by establishing a distance measure between the users and the items based on the ratings that regards them and, if their distance is under a threshold, it is possible to cluster them and consider them as elements having the same behavior. After having filled the clustered utility matrix, it is possible to expand it by assigning, to each user or item belonging to the same cluster, the rating regarding the cluster itself.
+\subsection{Hybrid recommendation approaches}
+A recommendation system that combines the predictions made by different ones is known as a \textbf{hybrid recommendation system}. Those approaches are quite popular and used due to the fact that usually it is hard to find a single recommender model that will fit well a given dataset. The solution proposed (Chapter \ref{sec:solution}) use one of the most popular methods for developing a hybrid recommendation system, which is combining, in a \textbf{weighted way}, the prediction performed by two or more different recommendation systems.
+
+
+\subsection{Distances}
+\label{sec:distances}
+
+When creating a recommendation system, different distance measures of similarity can be used in a variety of situations. 
+
+\subsubsection{Cosine similarity}
+
+$$
+S_c(A, B):= cos(\theta) = \frac{A\cdot B}{\left \| A \right \|\left \| B \right \|} =\frac{\sum_{i=1}^{n}A_iB_i}{\sqrt{\sum_{i=1}^{n}A_i^{2}}\sqrt{\sum_{i=1}^{n}B_i^{2}}}
+$$
+\textbf{Cosine similarity} is a measure of similarity between two sequences of numbers (vectors).
+
+\subsubsection{Centered cosine similarity}
+Referring to cosine similarity, if the attribute vectors are normalized by subtracting the vector means (e.g., $A - \bar{A}$ ), the measure is called the Centered cosine similarity and is equivalent to the \textbf{Pearson correlation coefficient}.
+
+\subsubsection{Jaccard similarity}
+
+The Jaccard index, also known as the \textbf{Jaccard similarity} coefficient, is a statistic used for gauging the similarity and diversity of sample sets. \cite{Jaccard}
+
+$$
+J(A,B) = \frac{\left |A \cap B  \right |}{\left |  A \cup B\right |} = \frac{\left | A \cap B   \right | }{\left | A \right | + \left | B  \right | -\left | A \cap B \right |}
+$$
+
+
+\subsection{Programming language and libraries}
+The entire solution was developed in \textbf{Python}. Mainly, the Pandas, NumPy and Scikit-learn.metrics libraries were leveraged.
+
+
+
+%CHECK:
+%https://assets.amazon.science/76/9e/7eac89c14a838746e91dde0a5e9f/two-decades-of-recommender-systems-at-amazon.pdf
+
+%https://cseweb.ucsd.edu//classes/fa17/cse291-b/reading/Amazon-Recommendations.pdf
+
+
+

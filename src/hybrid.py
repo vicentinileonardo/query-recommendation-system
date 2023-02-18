@@ -48,12 +48,12 @@ def hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THRESH
 
     real_complete_utility_matrix = import_data(matrix_type="real_complete")
 
-    path_1 = os.path.join(DIR, '../data/item_item_cf/complete_utility_matrix.csv')
-    path_2 = os.path.join(DIR, '../data/movies_item_item_cf/complete_utility_matrix.csv')
+    path_1 = os.path.join(DIR, '../data/compact_item_item_cf/complete_utility_matrix.csv')
+    path_2 = os.path.join(DIR, '../data/expanded_item_item_cf/complete_utility_matrix.csv')
     item_item_CF_utility_matrix = pd.read_csv(path_1, index_col=0)
     movies_item_item_CF_utilty_matrix = pd.read_csv(path_2, index_col=0)
 
-    path_preprocessed_queries = os.path.join(DIR, '../data/movies_item_item_cf/preprocessed_queries.csv')
+    path_preprocessed_queries = os.path.join(DIR, '../data/expanded_item_item_cf/preprocessed_queries.csv')
     preprocessed_queries_df = pd.read_csv(path_preprocessed_queries, index_col=0)
 
 
@@ -72,7 +72,7 @@ def hybrid_recommender(N_QUERIES = 100, N_USERS = 2500, THRESHOLD_1 = 10, THRESH
     hybrid_utility_matrix = pd.DataFrame(index=users, columns=queries)
 
     for query in queries:
-        print(results_in_query[query])
+        #print(results_in_query[query])
         if results_in_query[query] > THRESHOLD_2:
             item_item_CF_weight = WEIGHT_1
             movies_item_item_CF_weight = 1 - WEIGHT_1

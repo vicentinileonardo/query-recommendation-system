@@ -32,7 +32,7 @@ def compute_user_item_utility_matrix(complete_utility_matrix,preprocess_queries)
             results_in_query[query]=0
 
     for user in rows:
-        user_mean_ratings=complete_utility_matrix.loc[user,:].mean()
+        #user_mean_ratings=complete_utility_matrix.loc[user,:].mean()
 
         for item in columns:
             
@@ -58,14 +58,31 @@ def compute_user_item_utility_matrix(complete_utility_matrix,preprocess_queries)
                 elif final_score<0:
                     final_score=0
             else:
-                final_score= user_mean_ratings
+                final_score= 404 #PLACEHOLDER
             output_dictionary[item].append(final_score)
         user_counter+=1
         print("user "+str(user_counter)+", computed weighted ratings")
+    
+    user_counter=0
+    for user in rows:
+        item_counter=0
+        user_mean_rating=0
+        for item in columns:
+            if output_dictionary[item][user_counter]!=404:
+                user_mean_rating+=output_dictionary[item][user_counter]
+                item_counter+=1
+        user_mean_rating=round(user_mean_rating/item_counter)
+
+        for item in columns:
+            if output_dictionary[item][user_counter]==404:
+                output_dictionary[item][user_counter]=user_mean_rating
+
+        user_counter+=1
+        
 
     relational_data_utility_matrix=pd.DataFrame(data=output_dictionary, index=rows)
 
-    csv_path= os.path.join(DIR, '../data/PART_B/support_utility_matrix.csv')
+    csv_path= os.path.join(DIR, '../data/PART_B/support_hybrid_utility_matrix.csv')
     relational_data_utility_matrix.to_csv(csv_path)
 
     return relational_data_utility_matrix 
@@ -114,7 +131,7 @@ def preprocess_proposed_queries(queries,relational_data,header):
     index=[]
 
     for i in range(n_queries):
-        index.append("b"+str(i))
+        index.append("q"+str(i))
 
     preprocess_queries_df=pd.DataFrame(data=output_dictionary, index=index)
     csv_path= os.path.join(DIR, '../data/PART_B/preprocessed_queries.csv')
@@ -128,7 +145,7 @@ def compute_new_utility_matrix(queries,support_utility_matrix, new_preprocess_qu
     output_dictionary={}
 
     for i in range(n_queries):
-        output_dictionary["b"+str(i)]=[]
+        output_dictionary["q"+str(i)]=[]
 
     user_counter=0
     query_counter=0
@@ -138,7 +155,7 @@ def compute_new_utility_matrix(queries,support_utility_matrix, new_preprocess_qu
         for i in range(n_queries):
             partial_score=0 
             counter=0 #how many times a relational item appears in rated queries results
-            query_id="b"+str(query_counter)
+            query_id="q"+str(query_counter)
 
             for item in items:
                 if not math.isnan(new_preprocess_queries.loc[query_id,item]):
@@ -158,7 +175,7 @@ def compute_new_utility_matrix(queries,support_utility_matrix, new_preprocess_qu
             print("recostructing user-query utility matrix, n users computed= "+str(user_counter))
 
     ratings_prediction=pd.DataFrame(data=output_dictionary, index=rows)
-    path= os.path.join(DIR, '../data/PART_B/ratings_prediction.csv')
+    path= os.path.join(DIR, '../data/PART_B/ratings_hybrid_prediction.csv')
     ratings_prediction.to_csv(path)
 
     print(ratings_prediction)
@@ -169,14 +186,13 @@ def write_txt(queries):
     with open(os.path.join(DIR, '../data/PART_B/queries.txt'), 'w') as f:
         counter=0
         for query in queries:
-            f.write("b"+str(counter)+", "+str(query)+"\n")
+            f.write("q"+str(counter)+", "+str(query)+"\n")
             counter+=1
 
 if __name__ == "__main__":
-    part_b_matrix_path = os.path.join(DIR, '../data/PART_B/support_utility_matrix.csv')
     complete_utility_matrix_path = os.path.join(DIR, '../data/hybrid/complete_utility_matrix.csv')
-    preprocess_queries_path = os.path.join(DIR, '../data/movies_item_item_cf/preprocessed_queries.csv')
-    support_utility_matrix_path = os.path.join(DIR, '../data/PART_B/support_utility_matrix.csv')
+    preprocess_queries_path = os.path.join(DIR, '../data/expanded_item_item_cf/preprocessed_queries.csv')
+    support_utility_matrix_path = os.path.join(DIR, '../data/PART_B/support_hybrid_utility_matrix.csv')
     dataset_path = os.path.join(DIR, '../data/_queries.csv')
     relational_data_path = os.path.join(DIR, '../data/real_data/movies_2.csv')
     new_preprocess_queries_path = os.path.join(DIR, '../data/PART_B/preprocessed_queries.csv')
@@ -188,6 +204,7 @@ if __name__ == "__main__":
     #compute_user_item_utility_matrix(complete_utility_matrix,preprocess_queries)
     support_utility_matrix = pd.read_csv(support_utility_matrix_path, index_col=0)
 
+    
     print('\033[1m' + 'Rating of a query in general' + '\033[0m')
 
     with open(dataset_path, 'r') as f:

@@ -1,0 +1,44 @@
+\section{Introduction}
+%\label{sec:context}
+
+We live in a world in which the amount of digital information that surrounds us is so high that we need to use some recommendation systems everyday in order to filter the ones that could be interesting for us. We need to use these technologies so frequently that we almost take for granted their presence in all the devices and platforms that we use during our days.\cite{commons-Importance}
+
+A \textbf{Recommendation System} is a tool that is able to filter and prioritize the relevant information for users, based on their personalized basis. This process allows to reduce the information load that the user will receive after having learnt, in an implicit and explicit way, their preferences.\cite{Raghuwanshi-Intro} The functionalities provided by a well-developed recommendation system could be helpful both for the platform that host it, because it will increase in traffic, and for the users, that will be more satisfied.\cite{Ilyas-Intro}
+
+Many businesses' revenues are directly related to the quality of their recommendation system. For example, search engines like Google are interested in proposing web pages that could be found meaningful by the users. Other services instead, like Amazon and AirBnB, are interested in proposing products and apartments based on the users' preferences. Finally, other services, such as Netflix and Spotify, propose a well-developed recommendation system in order to have a competitive platform useful for growing a large user base.
+
+\subsection{Netflix}
+Netflix, indeed, represent one of the most successful examples of recommendation systems: its movies are proposed by considering some \textbf{attributes} that they have (like information about the titles, such as their genre, categories, actors, release year, etc) together with the \textbf{habits that a certain user has} (the time of the day when a user accesses the service, the average length of his/her stay in the platform, and so on). The preferences of an user are obtained both in a directed way, for example by understanding what the users like using their ratings or requesting some feedback, either in a non-directed way, analyzing the users' habits.\cite{Netflix-Recommendation} 
+
+The data that Netflix's recommendation system uses are very different, and as a result, they must be treated and processed differently: there are data that can change or stay the same over time, that can be discrete or continuous, and that can be known or unknown. Typically, the unknown and unfixed information pertains to the users.
+
+\subsection{Challenges behind a recommendation system}
+As illustrated, the development of a recommendation system could be very challenging for many reasons independently by its scope and scenario. The key problems are related to the lack of data collection and to the fact that both the information fields that could be considered relevant, as well as their values, may change over time.\cite{Macmanus-5Problems} Furthermore, how to use those data at disposition is quite complex and not intuitive, so only a few companies can provide a very high level of user satisfaction with their recommendation systems.
+
+To those difficulties another one is added, which is related to dealing with those information in an \textbf{efficient} and feasible manner, not obtainable with na\"ive approaches. 
+
+It should be noted that there are no issues with cold starts in the scenario under consideration: cases where new items or users are added  are not within the scope of the problem addressed by this work.
+
+\subsection{Approaches to tackle this task}
+Throughout the years, research has focused on the complications associated with the recommendation task in order to find the best approaches and techniques for dealing with it. The main ones can be divided into three major categories:
+\begin{itemize}
+  \item Content-based systems
+  \item Collaborative filtering systems
+  \item Hybrid recommendations approaches
+\end{itemize}
+Each category is characterized by their own main advantages such that, depending on the specific task that must be performed, we can prefer a specific approach with respect to another one.
+
+Content-based systems focus on \textbf{properties} of items. Similarity of items is determined by measuring the similarity in their properties.\cite{Book-ch9}
+In general, collaborative filtering systems focus instead on the \textbf{relationship} between users and items. For instance, the similarity of two items could be determined by the similarity of the ratings of those items by the users who have rated both of them.\cite{Book-ch9}
+
+Usually some preliminary steps are required to avoid either slow run-time computation and results that are far from the actual preferences of the  users. Similarity, for instance, could be used to \textbf{cluster} users and/or items into small groups with high similarity. 
+
+
+Most recommendation systems now employ a \textbf{hybrid approach} that combines collaborative filtering, content-based filtering, and other techniques. Hybrid approaches can be implemented in several ways, including separately making content-based and collaborative-filtering predictions and then combining them; adding content-based capabilities to a collaborative filtering approach (and vice versa); and unifying the approaches into a single model. \cite{hybrid-intro}
+
+\subsection{Our query recommendation system}
+The context on which we decided to focus on is similar to the Netflix one, even if we have decided to put more emphasis in recommending some queries related to a set of movies instead of recommending the movies themselves. In other words, we wanted to compute how much a set of queries identifying one or more movies characterized by \textbf{discrete} and \textbf{continuous} attributes could satisfy a user's preferences. The most effective approach we were able to obtain was composed of two different Collaborative Filtering components weighted according to \textbf{query result cardinality}.
+
+
+Our tool's ultimate goal is to be able to complete the tasks outlined in section \ref{sec:problem_statement} regardless of the domain being analyzed. In other words, if "MOVIES" is the current domain, "SUPERMARKET PRODUCTS" could be an alternative one. To be able to perform the later formalized tasks correctly regardless of the domain chosen, the tool or set of algorithms must be elastic and make as few assumptions as possible. 
+
